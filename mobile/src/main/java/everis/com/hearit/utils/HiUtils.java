@@ -1,0 +1,44 @@
+package everis.com.hearit.utils;
+
+import android.content.Context;
+import android.os.Environment;
+import android.util.Log;
+import android.widget.Toast;
+
+import java.io.File;
+
+/**
+ * Created by mauriziomento on 21/02/16.
+ */
+public class HiUtils {
+
+	public static void log (String TAG, String msg) {
+		Log.v(TAG, msg);
+	}
+
+	public static void log (String msg) {
+		Log.v("Hear-It", msg);
+	}
+
+	public static void toastShort (Context ctx, String msg) {
+		toast(ctx, msg, true);
+	}
+
+	public static void toastLong (Context ctx, String msg) {
+		toast(ctx, msg, false);
+	}
+
+	private static void toast (Context ctx, String msg, boolean lengthShort) {
+		if (ctx != null) {
+			if (lengthShort)
+				Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show();
+			else
+				Toast.makeText(ctx, msg, Toast.LENGTH_LONG).show();
+		}
+	}
+
+	public static File getFilesDirectory () {
+		String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/HearIt/sound/";
+		return new File(path);
+	}
+}
