@@ -23,14 +23,17 @@ package everis.com.hearit.sound;
 import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
+import android.os.Environment;
 
 import com.musicg.api.WhistleApi;
 import com.musicg.wave.Wave;
 import com.musicg.wave.WaveHeader;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -49,35 +52,48 @@ public class DetectorThread extends Thread {
 	private WhistleApi whistleApi;
 	private volatile Thread _thread;
 
+	private static final int RECORDER_BPP = 16;
+
+	private AudioRecord audioRecord = null;
+
+	private static final int RECORDER_SAMPLERATE = 44100;
+	private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_STEREO;
+	private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+
+	private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
+	private static final String AUDIO_RECORDER_FOLDER = "HearIt/Sound";
+	private static final String AUDIO_RECORDER_TEMP_FILE = "listen_temp.raw";
+
 	private LinkedList<Boolean> whistleResultList = new LinkedList<Boolean>();
 	private int numWhistles;
 	private int whistleCheckLength = 3;
 	private int whistlePassScore = 3;
 
+	long totalAudioLen = 0;
+	long totalDataLen = totalAudioLen + 36;
+	long longSampleRate = RECORDER_SAMPLERATE;
+	int channels = 1;
+	long byteRate = RECORDER_BPP * RECORDER_SAMPLERATE * channels / 8;
+
+	short[] audioData;
+
 	private OnSignalsDetectedListener onSignalsDetectedListener;
+
+	private int bufferSize = 0;
 
 	public DetectorThread (Context ctx, RecorderThread recorder) {
 		this.ctx = ctx;
 		this.recorder = recorder;
-		AudioRecord audioRecord = recorder.getAudioRecord();
 
-		int bitsPerSample = 0;
-		if (audioRecord.getAudioFormat() == AudioFormat.ENCODING_PCM_16BIT) {
-			bitsPerSample = 16;
-		} else if (audioRecord.getAudioFormat() == AudioFormat.ENCODING_PCM_8BIT) {
-			bitsPerSample = 8;
-		}
+		bufferSize = AudioRecord.getMinBufferSize
+				(RECORDER_SAMPLERATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING) * 3;
 
-		int channel = 0;
-		// whistle detection only supports mono channel
-		if (audioRecord.getChannelConfiguration() == AudioFormat.CHANNEL_IN_MONO) {
-			channel = 1;
-		}
+		audioData = new short[bufferSize]; //short array that pcm data is put into.
 
 		waveHeader = new WaveHeader();
-		waveHeader.setChannels(channel);
-		waveHeader.setBitsPerSample(bitsPerSample);
-		waveHeader.setSampleRate(audioRecord.getSampleRate());
+		waveHeader.setChannels(AudioFormat.CHANNEL_IN_MONO);
+		waveHeader.setBitsPerSample(AudioFormat.ENCODING_PCM_16BIT);
+		waveHeader.setSampleRate(44100);
 		whistleApi = new WhistleApi(waveHeader);
 		detectionApi = new HiSoundApi(waveHeader);
 	}
@@ -160,41 +176,6 @@ public class DetectorThread extends Thread {
 		}
 	}
 	*/
-/*
-	public void run () {
-		try {
-			byte[] buffer;
-			initBuffer();
-
-			Thread thisThread = Thread.currentThread();
-			while (_thread == thisThread) {
-				// detect sound
-				buffer = recorder.getFrameBytes();
-
-				// audio analyst
-				if (buffer != null) {
-					// sound detected
-					// whistle detection
-					//System.out.println("*Whistle:");
-
-					byte[] stream = convertStreamToByteArray(getInputStream());
-					HiUtils.log("stream lenght: " + stream.length);
-
-					if (detectionApi.isSpecificSound(stream)) {
-						onSoundDetected();
-						HiUtils.log("Sound detected");
-					}
-
-				} else {
-					//HiUtils.log("No detection");
-				}
-				// end audio analyst
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-*/
 
 	public void stopDetection () {
 		_thread = null;
@@ -211,17 +192,37 @@ public class DetectorThread extends Thread {
 				buffer = recorder.getFrameBytes();
 
 				// audio analyst
-				if (buffer != null && buffer.length > 1) {
+				if (buffer != null) {
 					// sound detected
 
-					HiUtils.log("Buffer lenght " + buffer.length);
+					//HiUtils.log("Buffer lenght " + buffer.length);
+
+					writeAudioDataToFile(buffer);
+					copyWaveFile(getTempFilename(), getFilename());
+					//deleteTempFile();
+
+					int sizeSound = buffer.length;
+					int sizeHeader = getByteHeader().length;
+
+					byte[] sound = new byte[sizeSound + sizeHeader];
+					System.arraycopy(getByteHeader(), 0, sound, 0, getByteHeader().length);
+					System.arraycopy(buffer, 0, sound, getByteHeader().length, buffer.length);
+
+					HiUtils.log("sound size: " + sound.length);
 
 					String pathToCompare = HiUtils.getFilesDirectory().toString();
 
-					Wave w1 = new Wave(waveHeader, buffer);
-					Wave w2 = new Wave(pathToCompare + "/test.wav");
+					Wave w1 = new Wave(waveHeader, sound);
+					Wave w2 = new Wave(pathToCompare + "/fff.wav");
 
-					HiUtils.log("Score " + w1.getFingerprintSimilarity(w2).getScore());
+					HiUtils.log("Comparing " + getFilename() + " and " + pathToCompare + "/fff.wav");
+
+					//float score = w1.getFingerprintSimilarity(w2).getScore();
+					float score = 0;
+					HiUtils.log("Score " + score);
+					if (score > 1) {
+						HiUtils.toastShort(ctx, "Score " + score);
+					}
 					/*
 
 					if (detectionApi.isSpecificSound(stream)) {
@@ -240,6 +241,61 @@ public class DetectorThread extends Thread {
 		}
 	}
 
+	private String getFilename () {
+		String filepath = Environment.getExternalStorageDirectory().getPath();
+		File file = new File(filepath, AUDIO_RECORDER_FOLDER);
+
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+
+		return (file.getAbsolutePath() + "/Prova_to_compare" +
+				AUDIO_RECORDER_FILE_EXT_WAV);
+	}
+
+	private void deleteTempFile () {
+		File file = new File(getTempFilename());
+		file.delete();
+	}
+
+
+	private void copyWaveFile (String inFilename, String outFilename) {
+		FileInputStream in = null;
+		FileOutputStream out = null;
+
+		byte[] data = new byte[bufferSize];
+
+		try {
+			in = new FileInputStream(inFilename);
+			out = new FileOutputStream(outFilename);
+			totalAudioLen = in.getChannel().size();
+			totalDataLen = totalAudioLen + 36;
+
+			HiUtils.log("File size: " + totalDataLen);
+
+			writeWaveFileHeader(out);
+
+			while (in.read(data) != -1) {
+				out.write(data);
+			}
+
+			in.close();
+			out.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	/*
+	private void convertByteArrayToWave(byte[] array){
+		long length = (long)(array.length / audioFormat.getFrameSize());
+		AudioInputStream audioInputStreamTemp = new AudioInputStream(bais, audioFormat, length);
+	}
+*/
+
 	private InputStream getInputStream () {
 		HashMap<String, Integer> sounds = HiSharedPreferences.getSounds(ctx);
 
@@ -257,6 +313,46 @@ public class DetectorThread extends Thread {
 		return null;
 	}
 
+	private void writeAudioDataToFile (byte[] data) {
+		String filename = getTempFilename();
+		FileOutputStream os = null;
+
+		try {
+			os = new FileOutputStream(filename);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			os.write(data);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			os.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private String getTempFilename () {
+		String filepath = Environment.getExternalStorageDirectory().getPath();
+		File file = new File(filepath, AUDIO_RECORDER_FOLDER);
+
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+
+		File tempFile = new File(filepath, AUDIO_RECORDER_TEMP_FILE);
+
+		if (tempFile.exists())
+			tempFile.delete();
+
+		return (file.getAbsolutePath() + "/" + AUDIO_RECORDER_TEMP_FILE);
+	}
+
 	private void onWhistleDetected () {
 		if (onSignalsDetectedListener != null) {
 			onSignalsDetectedListener.onWhistleDetected();
@@ -271,5 +367,61 @@ public class DetectorThread extends Thread {
 
 	public void setOnSignalsDetectedListener (OnSignalsDetectedListener listener) {
 		onSignalsDetectedListener = listener;
+	}
+
+
+	private void writeWaveFileHeader (FileOutputStream out) throws IOException {
+		out.write(getByteHeader(), 0, 44);
+	}
+
+	private byte[] getByteHeader () {
+		byte[] header = new byte[44];
+
+		header[0] = 'R';  // RIFF/WAVE header
+		header[1] = 'I';
+		header[2] = 'F';
+		header[3] = 'F';
+		header[4] = (byte) (totalDataLen & 0xff);
+		header[5] = (byte) ((totalDataLen >> 8) & 0xff);
+		header[6] = (byte) ((totalDataLen >> 16) & 0xff);
+		header[7] = (byte) ((totalDataLen >> 24) & 0xff);
+		header[8] = 'W';
+		header[9] = 'A';
+		header[10] = 'V';
+		header[11] = 'E';
+		header[12] = 'f';  // 'fmt ' chunk
+		header[13] = 'm';
+		header[14] = 't';
+		header[15] = ' ';
+		header[16] = 16;  // 4 bytes: size of 'fmt ' chunk
+		header[17] = 0;
+		header[18] = 0;
+		header[19] = 0;
+		header[20] = 1;  // format = 1
+		header[21] = 0;
+		header[22] = (byte) channels;
+		header[23] = 0;
+		header[24] = (byte) (longSampleRate & 0xff);
+		header[25] = (byte) ((longSampleRate >> 8) & 0xff);
+		header[26] = (byte) ((longSampleRate >> 16) & 0xff);
+		header[27] = (byte) ((longSampleRate >> 24) & 0xff);
+		header[28] = (byte) (byteRate & 0xff);
+		header[29] = (byte) ((byteRate >> 8) & 0xff);
+		header[30] = (byte) ((byteRate >> 16) & 0xff);
+		header[31] = (byte) ((byteRate >> 24) & 0xff);
+		header[32] = (byte) (2 * 16 / 8);  // block align
+		header[33] = 0;
+		header[34] = RECORDER_BPP;  // bits per sample
+		header[35] = 0;
+		header[36] = 'd';
+		header[37] = 'a';
+		header[38] = 't';
+		header[39] = 'a';
+		header[40] = (byte) (totalAudioLen & 0xff);
+		header[41] = (byte) ((totalAudioLen >> 8) & 0xff);
+		header[42] = (byte) ((totalAudioLen >> 16) & 0xff);
+		header[43] = (byte) ((totalAudioLen >> 24) & 0xff);
+
+		return header;
 	}
 }

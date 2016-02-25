@@ -84,8 +84,8 @@ public class MainActivity extends AppCompatActivity implements OnSignalsDetected
 		String pathToCompare = HiUtils.getFilesDirectory().toString();
 		//Wave wave1 = new Wave(getInputStream());
 		Wave wave1 = new Wave(pathToCompare + "/test.wav");
-		Wave wave2 = new Wave(pathToCompare + "/gui2.wav");
-		//HiUtils.log("Score " + wave1.getFingerprintSimilarity(wave2).getScore());
+		Wave wave2 = new Wave(pathToCompare + "/Prova_to_compare.wav");
+//		HiUtils.log("Score " + wave2.getFingerprintSimilarity(wave2).getScore());
 
 	}
 

@@ -27,6 +27,8 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 
+import everis.com.hearit.utils.HiUtils;
+
 public class RecorderThread extends Thread {
 
 	byte[] buffer;
@@ -35,7 +37,7 @@ public class RecorderThread extends Thread {
 	private int channelConfiguration = AudioFormat.CHANNEL_IN_MONO;
 	private int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
 	private int sampleRate = 44100;
-	private int frameByteSize = 2048; // for 1024 fft size (16bit sample size)
+	private int frameByteSize = 16384; // for 1024 fft size (16bit sample size)
 
 	public RecorderThread () {
 		int recBufSize = AudioRecord.getMinBufferSize(sampleRate, channelConfiguration, audioEncoding); // need to be larger than size of a frame
@@ -84,6 +86,8 @@ public class RecorderThread extends Thread {
 		averageAbsValue = totalAbsValue / frameByteSize / 2;
 
 		//System.out.println(averageAbsValue);
+
+		HiUtils.log("getFrameBytes. averageAbsValue size " + averageAbsValue);
 
 		// no input
 		if (averageAbsValue < 30) {
