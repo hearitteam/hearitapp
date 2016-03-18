@@ -77,4 +77,8 @@ public class HiSharedPreferences {
 
 		HiUtils.log("Removed Sound from the list: " + value);
 	}
+
+	public static void clearAll (Context ctx) {
+		getSharedPreferences(ctx).edit().clear().commit();
+	}
 }

@@ -9,17 +9,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import everis.com.hearit.utils.HiSharedPreferences;
+import everis.com.hearit.utils.HiUtils;
 
 /**
  * Created by mauriziomento on 22/02/16.
@@ -55,6 +52,7 @@ public class SoundListActivity extends AppCompatActivity {
 
 		final ListView listview = (ListView) findViewById(R.id.listview);
 
+		/*
 		listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 			@Override
@@ -73,8 +71,9 @@ public class SoundListActivity extends AppCompatActivity {
 			}
 
 		});
+		*/
 
-		soundAdapter = new SoundAdapter(this, getSoundList());
+		soundAdapter = new SoundAdapter(this, HiUtils.getSoundList(this));
 		listview.setAdapter(soundAdapter);
 
 		// ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -91,22 +90,10 @@ public class SoundListActivity extends AppCompatActivity {
 
 		//soundAdapter.notifyDataSetChanged();
 
-		soundAdapter.swapItems(getSoundList());
+		soundAdapter.swapItems(HiUtils.getSoundList(this));
 	}
 
-	private ArrayList<Sound> getSoundList () {
 
-		ArrayList<Sound> soundList = new ArrayList<>();
-		HashMap<String, Integer> sounds = HiSharedPreferences.getSounds(this);
-
-		for (HashMap.Entry<String, Integer> entry : sounds.entrySet()) {
-			Sound s = new Sound(entry.getKey());
-			if (s != null)
-				soundList.add(s);
-		}
-
-		return soundList;
-	}
 
 	@Override
 	public boolean onCreateOptionsMenu (Menu menu) {
@@ -123,7 +110,9 @@ public class SoundListActivity extends AppCompatActivity {
 		int id = item.getItemId();
 
 		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_settings) {
+		if (id == R.id.action_delete) {
+			HiSharedPreferences.clearAll(this);
+			HiUtils.deleteAudioFiles();
 			return true;
 		}
 

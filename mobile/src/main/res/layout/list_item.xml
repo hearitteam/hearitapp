@@ -20,6 +20,7 @@
         android:textColor="@android:color/black"/>
 
     <ImageView
+        android:id="@+id/sound_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

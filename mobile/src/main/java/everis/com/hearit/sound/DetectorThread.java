@@ -20,7 +20,9 @@ package everis.com.hearit.sound;
  *
  */
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.os.Environment;
@@ -39,44 +41,38 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import everis.com.hearit.R;
 import everis.com.hearit.utils.HiSharedPreferences;
 import everis.com.hearit.utils.HiUtils;
+import everis.com.hearit.utils.RegisterUtils;
 
 public class DetectorThread extends Thread {
 
+	private static final int RECORDER_BPP = 16;
+	private static final int RECORDER_SAMPLERATE = 44100;
+	private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_MONO;
+	private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+	private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
+	private static final String AUDIO_RECORDER_FOLDER = "HearIt/Sound";
+	private static final String AUDIO_RECORDER_TEMP_FILE = "listen_temp.raw";
+	long totalAudioLen = 0;
+	long totalDataLen = totalAudioLen + 36;
+	long longSampleRate = RECORDER_SAMPLERATE;
+	int channels = 1;
+	long byteRate = RECORDER_BPP * RECORDER_SAMPLERATE * RECORDER_CHANNELS / 8;
+	short[] audioData;
 	private Context ctx;
-
 	private RecorderThread recorder;
 	private WaveHeader waveHeader;
 	private HiSoundApi detectionApi;
 	private WhistleApi whistleApi;
 	private volatile Thread _thread;
-
-	private static final int RECORDER_BPP = 16;
-
+	private RegisterUtils registerUtils;
 	private AudioRecord audioRecord = null;
-
-	private static final int RECORDER_SAMPLERATE = 44100;
-	private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_STEREO;
-	private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
-
-	private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
-	private static final String AUDIO_RECORDER_FOLDER = "HearIt/Sound";
-	private static final String AUDIO_RECORDER_TEMP_FILE = "listen_temp.raw";
-
 	private LinkedList<Boolean> whistleResultList = new LinkedList<Boolean>();
 	private int numWhistles;
 	private int whistleCheckLength = 3;
 	private int whistlePassScore = 3;
-
-	long totalAudioLen = 0;
-	long totalDataLen = totalAudioLen + 36;
-	long longSampleRate = RECORDER_SAMPLERATE;
-	int channels = 1;
-	long byteRate = RECORDER_BPP * RECORDER_SAMPLERATE * channels / 8;
-
-	short[] audioData;
-
 	private OnSignalsDetectedListener onSignalsDetectedListener;
 
 	private int bufferSize = 0;
@@ -84,6 +80,8 @@ public class DetectorThread extends Thread {
 	public DetectorThread (Context ctx, RecorderThread recorder) {
 		this.ctx = ctx;
 		this.recorder = recorder;
+
+		registerUtils = new RegisterUtils();
 
 		bufferSize = AudioRecord.getMinBufferSize
 				(RECORDER_SAMPLERATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING) * 3;
@@ -94,8 +92,8 @@ public class DetectorThread extends Thread {
 		waveHeader.setChannels(AudioFormat.CHANNEL_IN_MONO);
 		waveHeader.setBitsPerSample(AudioFormat.ENCODING_PCM_16BIT);
 		waveHeader.setSampleRate(44100);
-		whistleApi = new WhistleApi(waveHeader);
-		detectionApi = new HiSoundApi(waveHeader);
+		//whistleApi = new WhistleApi(waveHeader);
+		//detectionApi = new HiSoundApi(waveHeader);
 	}
 
 	public static byte[] convertStreamToByteArray (InputStream is) throws IOException {
@@ -122,8 +120,12 @@ public class DetectorThread extends Thread {
 	}
 
 	public void start () {
-		_thread = new Thread(this);
-		_thread.start();
+		//deleteFile(getFilename());
+
+		registerUtils.startRecording("fileToCompare");
+
+		//_thread = new Thread(this);
+		//_thread.start();
 	}
 
 	/*
@@ -179,10 +181,15 @@ public class DetectorThread extends Thread {
 
 	public void stopDetection () {
 		_thread = null;
+		String matchingSound = registerUtils.stopAndCompare(ctx);
+		showSoundDialog(matchingSound);
+		//copyWaveFile(getTempFilename(), getFilename());
 	}
 
 	public void run () {
 		try {
+
+
 			byte[] buffer;
 			initBuffer();
 
@@ -195,12 +202,17 @@ public class DetectorThread extends Thread {
 				if (buffer != null) {
 					// sound detected
 
+					//HiUtils.log("buffer size: " + buffer.length);
+
 					//HiUtils.log("Buffer lenght " + buffer.length);
 
-					writeAudioDataToFile(buffer);
-					copyWaveFile(getTempFilename(), getFilename());
+					//writeAudioDataToFile(buffer);
+					//copyWaveFile(getTempFilename(), getFilename());
+
+					//printSound(buffer);
 					//deleteTempFile();
 
+					/*
 					int sizeSound = buffer.length;
 					int sizeHeader = getByteHeader().length;
 
@@ -209,20 +221,9 @@ public class DetectorThread extends Thread {
 					System.arraycopy(buffer, 0, sound, getByteHeader().length, buffer.length);
 
 					HiUtils.log("sound size: " + sound.length);
+					*/
 
-					String pathToCompare = HiUtils.getFilesDirectory().toString();
 
-					Wave w1 = new Wave(waveHeader, sound);
-					Wave w2 = new Wave(pathToCompare + "/fff.wav");
-
-					HiUtils.log("Comparing " + getFilename() + " and " + pathToCompare + "/fff.wav");
-
-					//float score = w1.getFingerprintSimilarity(w2).getScore();
-					float score = 0;
-					HiUtils.log("Score " + score);
-					if (score > 1) {
-						HiUtils.toastShort(ctx, "Score " + score);
-					}
 					/*
 
 					if (detectionApi.isSpecificSound(stream)) {
@@ -241,6 +242,32 @@ public class DetectorThread extends Thread {
 		}
 	}
 
+
+	private void compareSounds () {
+		String pathToCompare = HiUtils.getFilesDirectory().toString();
+
+		//Wave w1 = new Wave(waveHeader, sound);
+		Wave w1 = new Wave(getFilename());
+		//Wave w1 = new Wave(pathToCompare + "/prova.wav");
+		Wave w2 = new Wave(pathToCompare + "/fff.wav");
+
+		HiUtils.log("Comparing " + getFilename() + " and " + pathToCompare + "/fff.wav");
+
+		float score = w1.getFingerprintSimilarity(w2).getScore();
+		//float score = 0;
+		HiUtils.log("Score " + score);
+		if (score > 0.1) {
+			//HiUtils.toastShort(ctx, "Score " + score);
+			HiUtils.log("FOUND!!! Score " + score);
+		}
+	}
+
+	private void printSound (byte[] sound) {
+		for (Byte b : sound) {
+			HiUtils.log("PrintSound - " + b.intValue());
+		}
+	}
+
 	private String getFilename () {
 		String filepath = Environment.getExternalStorageDirectory().getPath();
 		File file = new File(filepath, AUDIO_RECORDER_FOLDER);
@@ -249,43 +276,13 @@ public class DetectorThread extends Thread {
 			file.mkdirs();
 		}
 
-		return (file.getAbsolutePath() + "/Prova_to_compare" +
+		return (file.getAbsolutePath() + "/fileToCompare" +
 				AUDIO_RECORDER_FILE_EXT_WAV);
 	}
 
-	private void deleteTempFile () {
-		File file = new File(getTempFilename());
+	private void deleteFile (String filename) {
+		File file = new File(filename);
 		file.delete();
-	}
-
-
-	private void copyWaveFile (String inFilename, String outFilename) {
-		FileInputStream in = null;
-		FileOutputStream out = null;
-
-		byte[] data = new byte[bufferSize];
-
-		try {
-			in = new FileInputStream(inFilename);
-			out = new FileOutputStream(outFilename);
-			totalAudioLen = in.getChannel().size();
-			totalDataLen = totalAudioLen + 36;
-
-			HiUtils.log("File size: " + totalDataLen);
-
-			writeWaveFileHeader(out);
-
-			while (in.read(data) != -1) {
-				out.write(data);
-			}
-
-			in.close();
-			out.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 
@@ -370,11 +367,45 @@ public class DetectorThread extends Thread {
 	}
 
 
-	private void writeWaveFileHeader (FileOutputStream out) throws IOException {
-		out.write(getByteHeader(), 0, 44);
+	private void copyWaveFile (String inFilename, String outFilename) {
+		FileInputStream in = null;
+		FileOutputStream out = null;
+		long totalAudioLen = 0;
+		long totalDataLen = totalAudioLen + 36;
+		long longSampleRate = RECORDER_SAMPLERATE;
+		int channels = 2;
+		long byteRate = RECORDER_BPP * RECORDER_SAMPLERATE * channels / 8;
+
+		byte[] data = new byte[bufferSize];
+
+		try {
+			in = new FileInputStream(inFilename);
+			out = new FileOutputStream(outFilename);
+			totalAudioLen = in.getChannel().size();
+			totalDataLen = totalAudioLen + 36;
+
+			HiUtils.log("File size: " + totalDataLen);
+
+			writeWaveFileHeader(out, totalAudioLen, totalDataLen,
+					longSampleRate, channels, byteRate);
+
+			while (in.read(data) != -1) {
+				out.write(data);
+			}
+
+			in.close();
+			out.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	private byte[] getByteHeader () {
+	private void writeWaveFileHeader (
+			FileOutputStream out, long totalAudioLen,
+			long totalDataLen, long longSampleRate, int channels,
+			long byteRate) throws IOException {
 		byte[] header = new byte[44];
 
 		header[0] = 'R';  // RIFF/WAVE header
@@ -422,6 +453,21 @@ public class DetectorThread extends Thread {
 		header[42] = (byte) ((totalAudioLen >> 16) & 0xff);
 		header[43] = (byte) ((totalAudioLen >> 24) & 0xff);
 
-		return header;
+		out.write(header, 0, 44);
 	}
+
+
+	private void showSoundDialog (String sound) {
+		new AlertDialog.Builder(ctx)
+				.setTitle("Matched Sound")
+				.setMessage(sound)
+				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+					public void onClick (DialogInterface dialog, int which) {
+						// continue with delete
+					}
+				})
+				.setIcon(ctx.getResources().getDrawable(R.mipmap.ear_logo))
+				.show();
+	}
+
 }

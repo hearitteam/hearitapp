@@ -1,12 +1,16 @@
 package everis.com.hearit;
 
 import android.content.Context;
+import android.media.MediaPlayer;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,9 +20,12 @@ import java.util.List;
  */
 public class SoundAdapter extends ArrayAdapter<Sound> {
 
+	private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
+	private static final String AUDIO_RECORDER_FOLDER = "HearIt/Sound";
 	private Context ctx;
 	private ArrayList<Sound> list;
 	private HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
+	private MediaPlayer mp;
 
 	public SoundAdapter (Context context, List<Sound> objects) {
 		super(context, R.layout.list_item, R.id.sound_name, objects);
@@ -32,7 +39,7 @@ public class SoundAdapter extends ArrayAdapter<Sound> {
 	}
 
 	@Override
-	public View getView (int position, View convertView, ViewGroup parent) {
+	public View getView (final int position, View convertView, ViewGroup parent) {
 
 		LayoutInflater inflater = (LayoutInflater) ctx
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -41,7 +48,51 @@ public class SoundAdapter extends ArrayAdapter<Sound> {
 		TextView textView = (TextView) rowView.findViewById(R.id.sound_name);
 		textView.setText(list.get(position).getName());
 
+		ImageView sound_icon = (ImageView) rowView.findViewById(R.id.sound_icon);
+		sound_icon.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick (View v) {
+
+				if (mp == null) {
+					mp = new MediaPlayer();
+				} else {
+					mp.stop();
+					mp.release();
+					mp = null;
+					mp = new MediaPlayer();
+				}
+
+				try {
+					mp.setDataSource(getFilePath(list.get(position).getName()));
+					mp.prepare();
+					mp.start();
+					mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+						@Override
+						public void onCompletion (MediaPlayer mediaPlayer) {
+							mp.stop();
+							mp.release();
+							mp = null;
+						}
+					});
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
 		return rowView;
+	}
+
+	private String getFilePath (String filename) {
+		String filepath = Environment.getExternalStorageDirectory().getPath();
+		File file = new File(filepath, AUDIO_RECORDER_FOLDER);
+
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+
+		return (file.getAbsolutePath() + "/" + filename +
+				AUDIO_RECORDER_FILE_EXT_WAV);
 	}
 
 	@Override

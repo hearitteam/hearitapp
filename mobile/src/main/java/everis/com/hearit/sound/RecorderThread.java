@@ -37,12 +37,14 @@ public class RecorderThread extends Thread {
 	private int channelConfiguration = AudioFormat.CHANNEL_IN_MONO;
 	private int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
 	private int sampleRate = 44100;
-	private int frameByteSize = 16384; // for 1024 fft size (16bit sample size)
+	private int frameByteSize = 1024; // for 1024 fft size (16bit sample size)
+	private int seconds = 5;
 
 	public RecorderThread () {
-		int recBufSize = AudioRecord.getMinBufferSize(sampleRate, channelConfiguration, audioEncoding); // need to be larger than size of a frame
+		//int recBufSize = AudioRecord.getMinBufferSize(sampleRate, channelConfiguration, audioEncoding); // need to be larger than size of a frame
+		int recBufSize = sampleRate * seconds;
 		audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, channelConfiguration, audioEncoding, recBufSize);
-		buffer = new byte[frameByteSize];
+		buffer = new byte[recBufSize];
 	}
 
 	public AudioRecord getAudioRecord () {
@@ -89,10 +91,15 @@ public class RecorderThread extends Thread {
 
 		HiUtils.log("getFrameBytes. averageAbsValue size " + averageAbsValue);
 
+		/*
 		// no input
 		if (averageAbsValue < 30) {
 			return null;
 		}
+		else{
+			HiUtils.log("getFrameBytes. averageAbsValue size " + averageAbsValue);
+		}
+		*/
 
 		return buffer;
 	}
