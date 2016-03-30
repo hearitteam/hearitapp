@@ -48,6 +48,17 @@ public class SoundAdapter extends ArrayAdapter<Sound> {
 		TextView textView = (TextView) rowView.findViewById(R.id.sound_name);
 		textView.setText(list.get(position).getName());
 
+		TextView importance = (TextView) rowView.findViewById(R.id.importance);
+		int drawable = R.drawable.round_green;
+		if (list.get(position).getImportance() == 0)
+			drawable = R.drawable.round_green;
+		else if (list.get(position).getImportance() == 1)
+			drawable = R.drawable.round_yellow;
+		else if (list.get(position).getImportance() == 2)
+			drawable = R.drawable.round_red;
+
+		importance.setBackground(ctx.getResources().getDrawable(drawable));
+
 		ImageView sound_icon = (ImageView) rowView.findViewById(R.id.sound_icon);
 		sound_icon.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -107,7 +118,8 @@ public class SoundAdapter extends ArrayAdapter<Sound> {
 	}
 
 	public void swapItems (ArrayList<Sound> list) {
-		this.list = list;
+		this.list.clear();
+		this.list.addAll(list);
 		notifyDataSetChanged();
 	}
 }

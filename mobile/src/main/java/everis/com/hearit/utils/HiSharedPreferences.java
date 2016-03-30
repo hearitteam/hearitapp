@@ -44,14 +44,14 @@ public class HiSharedPreferences {
 	}
 
 
-	public static int addSound (Context ctx, String value) {
+	public static int addSound (Context ctx, String value, int importanceValue) {
 		int result;
 		GsonBuilder gsonb = new GsonBuilder();
 		Gson gson = gsonb.create();
 
 		HashMap<String, Integer> map = getSounds(ctx);
 		if (!map.containsKey(value)) {
-			map.put(value, 1);
+			map.put(value, importanceValue);
 			result = 1;
 		} else {
 			result = 0;

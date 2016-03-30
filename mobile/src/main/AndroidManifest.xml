@@ -5,6 +5,7 @@
 
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
         android:allowBackup="true"
@@ -31,7 +32,6 @@
             android:value="@integer/google_play_services_version"/>
 
         <activity android:name=".RegisterSoundActivity"/>
-        <activity android:name=".RegisterSoundAct"/>
         <activity android:name=".SoundListActivity" android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 

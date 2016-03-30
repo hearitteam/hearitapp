@@ -52,12 +52,20 @@ public class HiUtils {
 		HashMap<String, Integer> sounds = HiSharedPreferences.getSounds(ctx);
 
 		for (HashMap.Entry<String, Integer> entry : sounds.entrySet()) {
-			Sound s = new Sound(entry.getKey());
+			Sound s = new Sound(entry.getKey(), entry.getValue());
 			if (s != null)
 				soundList.add(s);
 		}
 
 		return soundList;
+	}
+
+	public static Sound getSoundFromName (Context ctx, String name) {
+		for (Sound s : getSoundList(ctx)) {
+			if (s.getName().equals(name))
+				return s;
+		}
+		return null;
 	}
 
 	public static void deleteAudioFiles () {

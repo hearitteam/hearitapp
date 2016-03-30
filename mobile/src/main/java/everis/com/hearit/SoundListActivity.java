@@ -45,7 +45,7 @@ public class SoundListActivity extends AppCompatActivity {
 				//Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 				//		.setAction("Action", null).show();
 				//Intent intent = new Intent(getBaseContext(), RegisterSoundActivity.class);
-				Intent intent = new Intent(getBaseContext(), RegisterSoundAct.class);
+				Intent intent = new Intent(getBaseContext(), RegisterSoundActivity.class);
 				startActivity(intent);
 			}
 		});

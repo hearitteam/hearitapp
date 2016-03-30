@@ -26,4 +26,13 @@
         android:layout_alignParentRight="true"
         android:src="@drawable/speaker"/>
 
+    <TextView
+        android:id="@+id/importance"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_toLeftOf="@id/sound_icon"
+        android:background="@drawable/round_green"/>
+
 </RelativeLayout>

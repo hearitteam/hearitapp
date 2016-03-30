@@ -20,12 +20,17 @@ package everis.com.hearit.sound;
  *
  */
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.os.Environment;
+import android.os.Vibrator;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 import com.musicg.api.WhistleApi;
 import com.musicg.wave.Wave;
@@ -42,6 +47,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import everis.com.hearit.R;
+import everis.com.hearit.Sound;
 import everis.com.hearit.utils.HiSharedPreferences;
 import everis.com.hearit.utils.HiUtils;
 import everis.com.hearit.utils.RegisterUtils;
@@ -61,7 +67,7 @@ public class DetectorThread extends Thread {
 	int channels = 1;
 	long byteRate = RECORDER_BPP * RECORDER_SAMPLERATE * RECORDER_CHANNELS / 8;
 	short[] audioData;
-	private Context ctx;
+	private Activity act;
 	private RecorderThread recorder;
 	private WaveHeader waveHeader;
 	private HiSoundApi detectionApi;
@@ -77,8 +83,8 @@ public class DetectorThread extends Thread {
 
 	private int bufferSize = 0;
 
-	public DetectorThread (Context ctx, RecorderThread recorder) {
-		this.ctx = ctx;
+	public DetectorThread (Activity act, RecorderThread recorder) {
+		this.act = act;
 		this.recorder = recorder;
 
 		registerUtils = new RegisterUtils();
@@ -181,8 +187,9 @@ public class DetectorThread extends Thread {
 
 	public void stopDetection () {
 		_thread = null;
-		String matchingSound = registerUtils.stopAndCompare(ctx);
-		showSoundDialog(matchingSound);
+		String matchingSound = registerUtils.stopAndCompare(act);
+		Sound s = HiUtils.getSoundFromName(act, matchingSound);
+		showSoundDialog(s);
 		//copyWaveFile(getTempFilename(), getFilename());
 	}
 
@@ -294,7 +301,7 @@ public class DetectorThread extends Thread {
 */
 
 	private InputStream getInputStream () {
-		HashMap<String, Integer> sounds = HiSharedPreferences.getSounds(ctx);
+		HashMap<String, Integer> sounds = HiSharedPreferences.getSounds(act);
 
 		for (HashMap.Entry<String, Integer> entry : sounds.entrySet()) {
 			HiUtils.log("Comparing " + entry.getKey());
@@ -457,17 +464,45 @@ public class DetectorThread extends Thread {
 	}
 
 
-	private void showSoundDialog (String sound) {
-		new AlertDialog.Builder(ctx)
-				.setTitle("Matched Sound")
-				.setMessage(sound)
-				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-					public void onClick (DialogInterface dialog, int which) {
-						// continue with delete
-					}
-				})
-				.setIcon(ctx.getResources().getDrawable(R.mipmap.ear_logo))
-				.show();
+	private void showSoundDialog (Sound sound) {
+
+		String message = "";
+
+		int importanceColor = android.R.color.darker_gray;
+		if (sound != null) {
+			message = sound.getName();
+
+			if (sound.getImportance() == 0) {
+				importanceColor = android.R.color.holo_green_dark;
+			} else if (sound.getImportance() == 1) {
+				importanceColor = android.R.color.holo_orange_light;
+				((Vibrator) act.getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
+			} else if (sound.getImportance() == 2) {
+				importanceColor = android.R.color.holo_red_dark;
+				((Vibrator) act.getSystemService(Context.VIBRATOR_SERVICE)).vibrate(2000);
+			}
+		} else {
+			message = "No matched sound";
+		}
+
+		LayoutInflater inflater = act.getLayoutInflater();
+		View v = inflater.inflate(R.layout.custom_dialog, null);
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(act);
+		builder.setView(v);
+		final Dialog dialog = builder.create();
+
+		v.findViewById(R.id.popup).setBackgroundColor(act.getResources().getColor(importanceColor));
+		((TextView) v.findViewById(R.id.title)).setText("Matched Sound");
+		((TextView) v.findViewById(R.id.message)).setText(message);
+		v.findViewById(R.id.positiveButton).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick (View v) {
+				dialog.dismiss();
+			}
+		});
+
+		dialog.show();
 	}
 
 }
