@@ -189,7 +189,7 @@ public class RegisterUtils {
 
         if (!bestSound.isEmpty()) {
             HiUtils.log("Best Sound: " + bestSound + " Score: " + maxScore);
-            if (maxScore > 0.05) {
+            if (maxScore > 0.03) {
                 return bestSound;
             }
         } else {
