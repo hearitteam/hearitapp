@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-    package="everis.com.hearit"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="everis.com.hearit">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -32,7 +32,9 @@
             android:value="@integer/google_play_services_version"/>
 
         <activity android:name=".RegisterSoundActivity"/>
-        <activity android:name=".SoundListActivity" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".SoundListActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>
