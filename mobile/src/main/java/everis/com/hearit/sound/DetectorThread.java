@@ -48,6 +48,7 @@ import java.util.LinkedList;
 
 import everis.com.hearit.R;
 import everis.com.hearit.Sound;
+import everis.com.hearit.utils.AudioUtils;
 import everis.com.hearit.utils.HiSharedPreferences;
 import everis.com.hearit.utils.HiUtils;
 import everis.com.hearit.utils.RegisterUtils;
@@ -73,7 +74,7 @@ public class DetectorThread extends Thread {
 	private HiSoundApi detectionApi;
 	private WhistleApi whistleApi;
 	private volatile Thread _thread;
-	private RegisterUtils registerUtils;
+	private AudioUtils audioUtils;
 	private AudioRecord audioRecord = null;
 	private LinkedList<Boolean> whistleResultList = new LinkedList<Boolean>();
 	private int numWhistles;
@@ -87,7 +88,7 @@ public class DetectorThread extends Thread {
 		this.act = act;
 		this.recorder = recorder;
 
-		registerUtils = new RegisterUtils();
+		audioUtils = new AudioUtils();
 
 		bufferSize = AudioRecord.getMinBufferSize
 				(RECORDER_SAMPLERATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING) * 3;
@@ -128,7 +129,7 @@ public class DetectorThread extends Thread {
 	public void start () {
 		//deleteFile(getFilename());
 
-		registerUtils.startRecording("fileToCompare");
+		audioUtils.startRecording("fileToCompare");
 
 		//_thread = new Thread(this);
 		//_thread.start();
@@ -187,9 +188,9 @@ public class DetectorThread extends Thread {
 
 	public void stopDetection () {
 		_thread = null;
-		String matchingSound = registerUtils.stopAndCompare(act);
-		Sound s = HiUtils.getSoundFromName(act, matchingSound);
-		showSoundDialog(s);
+		/////TODO changed String matchingSound = registerUtils.stopAndCompare(act);
+		// Sound s = HiUtils.getSoundFromName(act, matchingSound);
+		// showSoundDialog(s);
 		//copyWaveFile(getTempFilename(), getFilename());
 	}
 

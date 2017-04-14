@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.media.AudioRecord;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -17,7 +16,7 @@ import java.io.File;
 
 import everis.com.hearit.utils.HiSharedPreferences;
 import everis.com.hearit.utils.HiUtils;
-import everis.com.hearit.utils.RegisterUtils;
+import everis.com.hearit.utils.AudioUtils;
 
 /**
  * Created by mauriziomento on 24/02/16.
@@ -32,7 +31,7 @@ public class RegisterSoundActivity extends AppCompatActivity {
     private int importanceValue;
     private Button register_sound;
     private boolean registering = false;
-    private RegisterUtils registerUtils;
+    private AudioUtils registerUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +42,7 @@ public class RegisterSoundActivity extends AppCompatActivity {
 
         importanceValue = 0;
 
-        registerUtils = new RegisterUtils();
+        registerUtils = new AudioUtils();
 
         sound_name = (EditText) findViewById(R.id.sound_name);
         importance = (TextView) findViewById(R.id.importance);
@@ -89,7 +88,7 @@ public class RegisterSoundActivity extends AppCompatActivity {
                 return;
             }
             register_sound.setText("Stop registration");
-            registerUtils.startRecording(fileName);
+            registerUtils.startRecording(HiUtils.getFilePath(fileName));
             showRegisteringDialog();
 
         } else {

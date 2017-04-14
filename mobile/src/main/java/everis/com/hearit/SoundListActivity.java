@@ -68,7 +68,7 @@ public class SoundListActivity extends AppCompatActivity {
 		});
 		*/
 
-        soundAdapter = new SoundAdapter(this, this, HiUtils.getSoundList(this));
+        soundAdapter = new SoundAdapter(this, HiUtils.getSoundList(this));
         listview.setAdapter(soundAdapter);
     }
 

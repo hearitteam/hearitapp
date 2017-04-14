@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import everis.com.hearit.utils.AudioUtils;
 import everis.com.hearit.utils.HiUtils;
 
 /**
@@ -29,17 +30,14 @@ import everis.com.hearit.utils.HiUtils;
 public class SoundAdapter extends ArrayAdapter<Sound> {
 
     private Context ctx;
-    private Activity act;
     private ArrayList<Sound> list;
     private HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
-    private MediaPlayer mp;
 
-    public SoundAdapter(Activity act, Context context, List<Sound> objects) {
+    public SoundAdapter(Context context, List<Sound> objects) {
         super(context, R.layout.list_item, R.id.sound_name, objects);
 
-        this.act = act;
         this.ctx = context;
-        this.list = new ArrayList<Sound>(objects);
+        this.list = new ArrayList<>(objects);
 
         for (int i = 0; i < objects.size(); ++i) {
             mIdMap.put(objects.get(i).getName(), i);
@@ -71,31 +69,8 @@ public class SoundAdapter extends ArrayAdapter<Sound> {
         sound_icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (mp == null) {
-                    mp = new MediaPlayer();
-                } else {
-                    mp.stop();
-                    mp.release();
-                    mp = null;
-                    mp = new MediaPlayer();
-                }
-
-                try {
-                    mp.setDataSource(HiUtils.getFilePath(list.get(position).getName()));
-                    mp.prepare();
-                    mp.start();
-                    mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mediaPlayer) {
-                            mp.stop();
-                            mp.release();
-                            mp = null;
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                AudioUtils audioUtils = new AudioUtils();
+                audioUtils.startPlaying(HiUtils.getFilePath(list.get(position).getName()));
             }
         });
 
