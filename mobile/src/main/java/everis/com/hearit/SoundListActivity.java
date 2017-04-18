@@ -1,7 +1,6 @@
 package everis.com.hearit;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -11,10 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
-
+import everis.com.hearit.utils.HiDBUtils;
 import everis.com.hearit.utils.HiSharedPreferences;
 import everis.com.hearit.utils.HiUtils;
 
@@ -24,7 +20,6 @@ import everis.com.hearit.utils.HiUtils;
 public class SoundListActivity extends AppCompatActivity {
 
     private SoundAdapter soundAdapter;
-    //private ArrayList<Sound> soundList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +32,6 @@ public class SoundListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //		.setAction("Action", null).show();
-                //Intent intent = new Intent(getBaseContext(), RegisterSoundActivity.class);
                 Intent intent = new Intent(getBaseContext(), RegisterSoundActivity.class);
                 startActivity(intent);
             }
@@ -68,20 +60,14 @@ public class SoundListActivity extends AppCompatActivity {
 		});
 		*/
 
-        soundAdapter = new SoundAdapter(this, HiUtils.getSoundList(this));
+        soundAdapter = new SoundAdapter(this, HiDBUtils.getSoundListFromDB());
         listview.setAdapter(soundAdapter);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-        //soundList = new ArrayList<Sound>();
-        //soundAdapter = new SoundAdapter(this, soundList);
-
-        //soundAdapter.notifyDataSetChanged();
-
-        soundAdapter.swapItems(HiUtils.getSoundList(this));
+        soundAdapter.swapItems(HiDBUtils.getSoundListFromDB());
     }
 
 
@@ -102,6 +88,7 @@ public class SoundListActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_delete) {
             HiSharedPreferences.clearAll(this);
+            HiDBUtils.deleteSounds();
             HiUtils.deleteAudioFiles();
             return true;
         }

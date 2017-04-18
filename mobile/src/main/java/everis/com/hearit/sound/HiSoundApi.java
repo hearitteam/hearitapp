@@ -1,16 +1,18 @@
 package everis.com.hearit.sound;
 
-import com.musicg.api.DetectionApi;
-import com.musicg.wave.WaveHeader;
+//import com.musicg.api.DetectionApi;
+//import com.musicg.wave.WaveHeader;
 
 /**
  * Created by mauriziomento on 24/02/16.
  */
+
+/*
 public class HiSoundApi extends DetectionApi {
 	public HiSoundApi (WaveHeader waveHeader) {
 		super(waveHeader);
 	}
-/*
+
 	protected void init () {
 		this.minFrequency = 600.0D;
 		this.maxFrequency = 1.7976931348623157E308D;
@@ -24,7 +26,7 @@ public class HiSoundApi extends DetectionApi {
 		this.maxNumZeroCross = 200;
 		this.numRobust = 10;
 	}
-	*/
+
 
 	protected void init () {
 		this.minFrequency = 60.0D;
@@ -40,10 +42,11 @@ public class HiSoundApi extends DetectionApi {
 		this.numRobust = 10;
 	}
 
-	/*
+
 	public boolean isWhistle (byte[] audioBytes) {
 		return this.isSpecificSound(audioBytes);
 	}
-	*/
+
 }
 
+*/

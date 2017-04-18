@@ -1,22 +1,15 @@
 package everis.com.hearit.sound;
 
-import android.content.Context;
-import android.os.Handler;
-
-import com.musicg.fingerprint.FingerprintSimilarity;
-import com.musicg.wave.Wave;
-
-import java.util.HashMap;
-
-import everis.com.hearit.utils.HiSharedPreferences;
-import everis.com.hearit.utils.HiUtils;
+//import com.musicg.fingerprint.FingerprintSimilarity;
+//import com.musicg.wave.Wave;
 
 /**
  * Created by mauriziomento on 22/02/16.
  */
 public class CompareSounds {
 
-	private final int POLL_INTERVAL = 500;
+	/*
+    private final int POLL_INTERVAL = 500;
 	private ListenMic listenMic;
 	private Handler mSoundHandler;
 	private Context ctx;
@@ -58,4 +51,5 @@ public class CompareSounds {
 		if (mSoundHandler != null)
 			mSoundHandler.removeCallbacks(mPollSoundTask);
 	}
+	*/
 }

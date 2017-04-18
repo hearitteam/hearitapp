@@ -6,10 +6,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import everis.com.hearit.Sound;
 
 /**
  * Created by mauriziomento on 21/02/16.
@@ -44,35 +40,8 @@ public class HiUtils {
         }
     }
 
-    public static File getFilesDirectory() {
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/HearIt/sound/";
-        return new File(path);
-    }
-
-    public static ArrayList<Sound> getSoundList(Context ctx) {
-
-        ArrayList<Sound> soundList = new ArrayList<>();
-        HashMap<String, Integer> sounds = HiSharedPreferences.getSounds(ctx);
-
-        for (HashMap.Entry<String, Integer> entry : sounds.entrySet()) {
-            Sound s = new Sound(entry.getKey(), entry.getValue());
-            if (s != null)
-                soundList.add(s);
-        }
-
-        return soundList;
-    }
-
-    public static Sound getSoundFromName(Context ctx, String name) {
-        for (Sound s : getSoundList(ctx)) {
-            if (s.getName().equals(name))
-                return s;
-        }
-        return null;
-    }
-
     public static void deleteAudioFiles() {
-        deleteRecursive(getFilesDirectory());
+        deleteRecursive(new File(getSoundsPath()));
     }
 
     private static void deleteRecursive(File fileOrDirectory) {

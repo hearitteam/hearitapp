@@ -8,26 +8,18 @@ import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.musicg.wave.Wave;
-
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.HashMap;
 
 import everis.com.hearit.sound.CompareSounds;
 import everis.com.hearit.sound.DetectorThread;
 import everis.com.hearit.sound.OnSignalsDetectedListener;
 import everis.com.hearit.sound.RecorderThread;
-import everis.com.hearit.utils.HiSharedPreferences;
 import everis.com.hearit.utils.HiUtils;
 
 public class MainActivity extends AppCompatActivity implements OnSignalsDetectedListener {
@@ -127,7 +119,8 @@ public class MainActivity extends AppCompatActivity implements OnSignalsDetected
 
     private void startApp() {
         act = this;
-        cs = new CompareSounds(getBaseContext());
+        //cs = new CompareSounds(getBaseContext());
+        cs = new CompareSounds();
 
         show_list = (Button) findViewById(R.id.show_list);
         show_list.setOnClickListener(new View.OnClickListener() {
@@ -175,14 +168,15 @@ public class MainActivity extends AppCompatActivity implements OnSignalsDetected
         });
 
         HiUtils.log("Comparing bass ");
-        String pathToCompare = HiUtils.getFilesDirectory().toString();
+        //String pathToCompare = HiUtils.getFilesDirectory().toString();
         //Wave wave1 = new Wave(getInputStream());
-        Wave wave1 = new Wave(pathToCompare + "/test.wav");
-        Wave wave2 = new Wave(pathToCompare + "/Prova_to_compare.wav");
+        //Wave wave1 = new Wave(pathToCompare + "/test.wav");
+        //Wave wave2 = new Wave(pathToCompare + "/Prova_to_compare.wav");
 //		HiUtils.log("Score " + wave2.getFingerprintSimilarity(wave2).getScore());
 
     }
 
+    /*
     private InputStream getInputStream() {
         HashMap<String, Integer> sounds = HiSharedPreferences.getSounds(this);
 
@@ -199,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements OnSignalsDetected
         }
         return null;
     }
+    */
 
     @Override
     public void onWhistleDetected() {

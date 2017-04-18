@@ -14,9 +14,9 @@ import android.widget.Toast;
 
 import java.io.File;
 
-import everis.com.hearit.utils.HiSharedPreferences;
-import everis.com.hearit.utils.HiUtils;
 import everis.com.hearit.utils.AudioUtils;
+import everis.com.hearit.utils.HiDBUtils;
+import everis.com.hearit.utils.HiUtils;
 
 /**
  * Created by mauriziomento on 24/02/16.
@@ -110,7 +110,8 @@ public class RegisterSoundActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int whichButton) {
                 mProgressDialog.dismiss();
                 registerUtils.stopRecording();
-                HiSharedPreferences.addSound(ctx, fileName, importanceValue);
+                //HiSharedPreferences.addSound(ctx, fileName, importanceValue);
+                HiDBUtils.saveSoundIntoDB(fileName, importanceValue);
             }
         });
 
@@ -118,10 +119,10 @@ public class RegisterSoundActivity extends AppCompatActivity {
             public void onCancel(DialogInterface p1) {
                 recorder.stop();
                 recorder.release();
-                HiSharedPreferences.addSound(ctx, fileName, importanceValue);
+                //HiSharedPreferences.addSound(ctx, fileName, importanceValue);
+                HiDBUtils.saveSoundIntoDB(fileName, importanceValue);
             }
         });
         mProgressDialog.show();
     }
-
 }

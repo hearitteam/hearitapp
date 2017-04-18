@@ -5,8 +5,6 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Environment;
 
-import com.musicg.wave.Wave;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -14,6 +12,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import everis.com.hearit.utils.HiUtils;
+
+//import com.musicg.wave.Wave;
 
 /**
  * Created by mauriziomento on 21/02/16.
@@ -147,7 +147,7 @@ public class ListenMic {
 		}
 	}
 
-
+/*
 	public Wave getAudioWave () {
 
 		byte data[] = new byte[bufferSize];
@@ -187,6 +187,7 @@ public class ListenMic {
 
 		return new Wave(getTempFilename());
 	}
+	*/
 
 
 	public void convert () {

@@ -3,12 +3,6 @@ package everis.com.hearit.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-
-import java.util.HashMap;
-
 /**
  * Created by mauriziomento on 21/02/16.
  */
@@ -25,7 +19,7 @@ public class HiSharedPreferences {
 		return getSharedPreferences(ctx).edit();
 	}
 
-
+/*
 	public static HashMap<String, Integer> getSounds (Context ctx) {
 		String value = getSharedPreferences(ctx).getString(SP_SOUND_LIST, null);
 
@@ -77,6 +71,8 @@ public class HiSharedPreferences {
 
 		HiUtils.log("Removed Sound from the list: " + value);
 	}
+
+	*/
 
 	public static void clearAll (Context ctx) {
 		getSharedPreferences(ctx).edit().clear().commit();

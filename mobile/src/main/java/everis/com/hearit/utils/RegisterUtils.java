@@ -1,13 +1,9 @@
 package everis.com.hearit.utils;
 
-import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Environment;
-import android.util.Log;
-
-import com.musicg.wave.Wave;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,7 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import everis.com.hearit.Sound;
+//import com.musicg.wave.Wave;
 
 /**
  * Created by mauriziomento on 17/03/16.
@@ -146,8 +142,9 @@ public class RegisterUtils {
         File file = new File(getTempFilename());
         file.delete();
     }
-
+/*
     public String stopAndCompare(Context ctx) {
+
         if (null != recorder) {
             isRecording = false;
 
@@ -163,6 +160,7 @@ public class RegisterUtils {
         copyWaveFile(getTempFilename(), HiUtils.getFilePath(fileName));
         deleteTempFile();
         return compareSounds(ctx);
+
     }
 
     public String compareSounds(Context ctx) {
@@ -187,6 +185,7 @@ public class RegisterUtils {
             }
         }
 
+
         if (!bestSound.isEmpty()) {
             HiUtils.log("Best Sound: " + bestSound + " Score: " + maxScore);
             if (maxScore > 0.03) {
@@ -197,7 +196,7 @@ public class RegisterUtils {
         }
         return "No Matching sound";
     }
-
+*/
 
     private void copyWaveFile(String inFilename, String outFilename) {
         FileInputStream in = null;

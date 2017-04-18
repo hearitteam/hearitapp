@@ -1,14 +1,6 @@
 package everis.com.hearit;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
-import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +8,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -76,7 +67,6 @@ public class SoundAdapter extends ArrayAdapter<Sound> {
 
         return rowView;
     }
-
 
     @Override
     public long getItemId(int position) {
