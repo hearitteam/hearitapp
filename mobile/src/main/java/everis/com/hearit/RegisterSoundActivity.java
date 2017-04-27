@@ -14,14 +14,15 @@ import android.widget.Toast;
 
 import java.io.File;
 
-import everis.com.hearit.utils.AudioUtils;
+import everis.com.hearit.sound.HiAlgorithm;
+import everis.com.hearit.sound.HiRecorderThread;
 import everis.com.hearit.utils.HiDBUtils;
 import everis.com.hearit.utils.HiUtils;
 
 /**
  * Created by mauriziomento on 24/02/16.
  */
-public class RegisterSoundActivity extends AppCompatActivity {
+public class RegisterSoundActivity extends AppCompatActivity implements HiRecorderThread.HiRecorderCallback {
 
     private String fileName;
     private AudioRecord recorder = null;
@@ -31,7 +32,8 @@ public class RegisterSoundActivity extends AppCompatActivity {
     private int importanceValue;
     private Button register_sound;
     private boolean registering = false;
-    private AudioUtils registerUtils;
+
+    private HiRecorderThread recorderThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +43,6 @@ public class RegisterSoundActivity extends AppCompatActivity {
         ctx = this;
 
         importanceValue = 0;
-
-        registerUtils = new AudioUtils();
 
         sound_name = (EditText) findViewById(R.id.sound_name);
         importance = (TextView) findViewById(R.id.importance);
@@ -88,12 +88,14 @@ public class RegisterSoundActivity extends AppCompatActivity {
                 return;
             }
             register_sound.setText("Stop registration");
-            registerUtils.startRecording(HiUtils.getFilePath(fileName));
+
+            recorderThread = new HiRecorderThread(this);
+            recorderThread.execute(fileName);
+
             showRegisteringDialog();
 
         } else {
             register_sound.setText("Register sound");
-            //stopRecording();
         }
     }
 
@@ -108,21 +110,28 @@ public class RegisterSoundActivity extends AppCompatActivity {
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Stop recording", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
+
+                recorderThread.stopRegistration();
+
                 mProgressDialog.dismiss();
-                registerUtils.stopRecording();
-                //HiSharedPreferences.addSound(ctx, fileName, importanceValue);
                 HiDBUtils.saveSoundIntoDB(fileName, importanceValue);
             }
         });
 
         mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             public void onCancel(DialogInterface p1) {
+                recorderThread.stopRegistration();
+
                 recorder.stop();
                 recorder.release();
-                //HiSharedPreferences.addSound(ctx, fileName, importanceValue);
                 HiDBUtils.saveSoundIntoDB(fileName, importanceValue);
             }
         });
         mProgressDialog.show();
+    }
+
+    @Override public void onFinishRegistration() {
+        HiAlgorithm algorithm = new HiAlgorithm();
+        algorithm.doTransformAndSaveSound(fileName);
     }
 }

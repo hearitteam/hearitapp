@@ -1,4 +1,4 @@
-package everis.com.hearit;
+package everis.com.hearit.model;
 
 import com.orm.SugarRecord;
 

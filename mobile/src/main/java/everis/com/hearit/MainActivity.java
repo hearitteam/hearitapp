@@ -16,13 +16,9 @@ import android.widget.Toast;
 
 import java.io.File;
 
-import everis.com.hearit.sound.CompareSounds;
-import everis.com.hearit.sound.DetectorThread;
-import everis.com.hearit.sound.OnSignalsDetectedListener;
-import everis.com.hearit.sound.RecorderThread;
 import everis.com.hearit.utils.HiUtils;
 
-public class MainActivity extends AppCompatActivity implements OnSignalsDetectedListener {
+public class MainActivity extends AppCompatActivity {
 
     public static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     public static final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 2;
@@ -30,13 +26,7 @@ public class MainActivity extends AppCompatActivity implements OnSignalsDetected
     private Button show_list;
     private ImageView listen_sound;
     private boolean listening = false;
-    private CompareSounds cs;
     private MainActivity act;
-
-    private DetectorThread detectorThread;
-    private RecorderThread recorderThread;
-    private int numWhistleDetected = 0;
-    private int numSoundDetected = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,8 +109,6 @@ public class MainActivity extends AppCompatActivity implements OnSignalsDetected
 
     private void startApp() {
         act = this;
-        //cs = new CompareSounds(getBaseContext());
-        cs = new CompareSounds();
 
         show_list = (Button) findViewById(R.id.show_list);
         show_list.setOnClickListener(new View.OnClickListener() {
@@ -142,66 +130,14 @@ public class MainActivity extends AppCompatActivity implements OnSignalsDetected
 
                     listen_sound.startAnimation(
                             AnimationUtils.loadAnimation(act, R.anim.rotate));
-
-                    //cs.start();
-                    recorderThread = new RecorderThread();
-                    //recorderThread.start();
-                    detectorThread = new DetectorThread(act, recorderThread);
-                    detectorThread.setOnSignalsDetectedListener(act);
-                    detectorThread.start();
+                    //TODO: DO SOMETHING
                 } else {
 
                     listen_sound.clearAnimation();
-
-                    //cs.stop();
-                    if (recorderThread != null) {
-                        recorderThread.stopRecording();
-                        recorderThread = null;
-                    }
-                    if (detectorThread != null) {
-                        detectorThread.stopDetection();
-                        detectorThread = null;
-                    }
+                    //TODO: DO SOMETHING
                 }
 
             }
         });
-
-        HiUtils.log("Comparing bass ");
-        //String pathToCompare = HiUtils.getFilesDirectory().toString();
-        //Wave wave1 = new Wave(getInputStream());
-        //Wave wave1 = new Wave(pathToCompare + "/test.wav");
-        //Wave wave2 = new Wave(pathToCompare + "/Prova_to_compare.wav");
-//		HiUtils.log("Score " + wave2.getFingerprintSimilarity(wave2).getScore());
-
-    }
-
-    /*
-    private InputStream getInputStream() {
-        HashMap<String, Integer> sounds = HiSharedPreferences.getSounds(this);
-
-        for (HashMap.Entry<String, Integer> entry : sounds.entrySet()) {
-            HiUtils.log("Comparing " + entry.getKey());
-            String pathToCompare = HiUtils.getFilesDirectory() + "/" + entry.getKey();
-            try {
-                InputStream is = new FileInputStream(pathToCompare);
-                return is;
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-
-        }
-        return null;
-    }
-    */
-
-    @Override
-    public void onWhistleDetected() {
-        HiUtils.log("onWhistleDetected: " + (numWhistleDetected++));
-    }
-
-    @Override
-    public void onSoundDetected() {
-        HiUtils.log("onSoundDetected: " + (numSoundDetected++));
     }
 }

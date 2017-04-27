@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by mauriziomento on 21/02/16.
@@ -13,7 +14,7 @@ import java.io.File;
 public class HiUtils {
 
     public static final String AUDIO_RECORDER_FOLDER = "HearIt/Sound";
-    private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
+    private static final String AUDIO_RECORDER_FILE_EXT_WAV = "wav";
 
     public static void log(String TAG, String msg) {
         Log.v(TAG, msg);
@@ -58,8 +59,25 @@ public class HiUtils {
         return folder.getAbsolutePath();
     }
 
+    public static String getFilePath(String filename, String extension) {
+        return (getSoundsPath() + "/" + filename + "." + extension);
+    }
+
     public static String getFilePath(String filename) {
-        return (getSoundsPath() + "/" + filename +
-                AUDIO_RECORDER_FILE_EXT_WAV);
+        return getFilePath(filename, AUDIO_RECORDER_FILE_EXT_WAV);
+    }
+
+    public static File createOrGetFile(String filename) {
+        return createOrGetFile(filename, AUDIO_RECORDER_FILE_EXT_WAV);
+    }
+
+    public static File createOrGetFile(String filename, String extension) {
+        try {
+            File file = new File(HiUtils.getFilePath(filename, extension));
+            file.createNewFile();
+            return file;
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't create file on SD card", e);
+        }
     }
 }

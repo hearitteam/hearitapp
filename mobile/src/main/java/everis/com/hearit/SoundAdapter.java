@@ -12,8 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import everis.com.hearit.utils.AudioUtils;
-import everis.com.hearit.utils.HiUtils;
+import everis.com.hearit.model.Sound;
 
 /**
  * Created by mauriziomento on 21/02/16.
@@ -60,8 +59,7 @@ public class SoundAdapter extends ArrayAdapter<Sound> {
         sound_icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AudioUtils audioUtils = new AudioUtils();
-                audioUtils.startPlaying(HiUtils.getFilePath(list.get(position).getName()));
+                //TODO: REPRODUCE SOUND ?
             }
         });
 

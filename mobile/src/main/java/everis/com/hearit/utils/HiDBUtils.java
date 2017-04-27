@@ -2,7 +2,7 @@ package everis.com.hearit.utils;
 
 import java.util.ArrayList;
 
-import everis.com.hearit.Sound;
+import everis.com.hearit.model.Sound;
 
 /**
  * Created by mauriziomento on 18/04/17.
