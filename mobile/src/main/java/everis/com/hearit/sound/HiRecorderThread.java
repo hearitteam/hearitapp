@@ -1,6 +1,5 @@
 package everis.com.hearit.sound;
 
-import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
@@ -8,21 +7,20 @@ import android.os.AsyncTask;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 
+import everis.com.hearit.RecordSoundActivity;
 import everis.com.hearit.utils.HiUtils;
 
 public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
 
-    private static final int RECORDER_SAMPLERATE = 8000;
-    private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_MONO;
-    private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
-
     boolean isRecording = false;
+    ArrayList<Byte> audio;
+    private RecordSoundActivity callback;
 
-    private HiRecorderCallback callback;
-
-    public HiRecorderThread(HiRecorderCallback callback) {
+    public HiRecorderThread(RecordSoundActivity callback) {
         this.callback = callback;
+        this.audio = new ArrayList<>();
     }
 
     @Override
@@ -37,11 +35,11 @@ public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
             BufferedWriter writer = new BufferedWriter(new FileWriter(audioFile));
 
             // DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(audioFile)));
-            int bufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLERATE,
-                    RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
+            int bufferSize = AudioRecord.getMinBufferSize(SoundParams.RECORDER_SAMPLERATE,
+                    SoundParams.RECORDER_CHANNELS, SoundParams.RECORDER_AUDIO_ENCODING);
             AudioRecord audioRecord = new AudioRecord(
-                    MediaRecorder.AudioSource.MIC, RECORDER_SAMPLERATE,
-                    RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING, bufferSize);
+                    MediaRecorder.AudioSource.MIC, SoundParams.RECORDER_SAMPLERATE,
+                    SoundParams.RECORDER_CHANNELS, SoundParams.RECORDER_AUDIO_ENCODING, bufferSize);
 
             byte[] buffer = new byte[bufferSize];
             audioRecord.startRecording();
@@ -51,8 +49,11 @@ public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
                 for (int i = 0; i < bufferReadResult; i++) {
                     // dos.write(buffer[i]);
                     //dos.writeBytes(Integer.toString(buffer[i]));
-                    writer.write(Integer.toString(buffer[i]));
-                    writer.newLine();
+                    //writer.write(Integer.toString(buffer[i]));
+                    //writer.newLine();
+
+                    audio.add(buffer[i]);
+
                     //byte b = buffer[i];
                     //if (b != 0)
                     //  b++;
@@ -76,14 +77,14 @@ public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
 
     protected void onPostExecute(Void result) {
         HiUtils.log("recoding process", "stop");
-        callback.onFinishRegistration();
+        callback.onFinishRecording(audio);
     }
 
-    public void stopRegistration() {
+    public void stopRecording() {
         isRecording = false;
     }
 
     public interface HiRecorderCallback {
-        void onFinishRegistration();
+        void onFinishRecording(ArrayList<Byte> audio);
     }
 }

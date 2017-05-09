@@ -32,4 +32,10 @@ dependencies {
     compile 'com.google.code.gson:gson:2.7'
     //Db
     compile 'com.github.satyan:sugar:1.4'
+
+    //plot
+    //compile 'com.jjoe64:graphview:4.2.1'
+
+    //SharedPrefences
+    //compile 'net.grandcentrix.tray:tray:0.11.0'
 }

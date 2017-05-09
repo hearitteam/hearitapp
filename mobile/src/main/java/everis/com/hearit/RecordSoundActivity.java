@@ -13,16 +13,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 import everis.com.hearit.sound.HiAlgorithm;
 import everis.com.hearit.sound.HiRecorderThread;
 import everis.com.hearit.utils.HiDBUtils;
+import everis.com.hearit.utils.HiSharedPreferences;
 import everis.com.hearit.utils.HiUtils;
 
 /**
  * Created by mauriziomento on 24/02/16.
  */
-public class RegisterSoundActivity extends AppCompatActivity implements HiRecorderThread.HiRecorderCallback {
+public class RecordSoundActivity extends AppCompatActivity implements HiRecorderThread.HiRecorderCallback {
 
     private String fileName;
     private AudioRecord recorder = null;
@@ -30,15 +33,15 @@ public class RegisterSoundActivity extends AppCompatActivity implements HiRecord
     private EditText sound_name;
     private TextView importance;
     private int importanceValue;
-    private Button register_sound;
-    private boolean registering = false;
+    private Button record_sound;
+    private boolean recording = false;
 
     private HiRecorderThread recorderThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register_sound);
+        setContentView(R.layout.activity_record_sound);
 
         ctx = this;
 
@@ -46,11 +49,11 @@ public class RegisterSoundActivity extends AppCompatActivity implements HiRecord
 
         sound_name = (EditText) findViewById(R.id.sound_name);
         importance = (TextView) findViewById(R.id.importance);
-        register_sound = (Button) findViewById(R.id.register_sound);
-        register_sound.setOnClickListener(new View.OnClickListener() {
+        record_sound = (Button) findViewById(R.id.record_sound);
+        record_sound.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleRegistration();
+                toggleRecordAudio();
             }
         });
 
@@ -71,31 +74,34 @@ public class RegisterSoundActivity extends AppCompatActivity implements HiRecord
         });
     }
 
-    private void toggleRegistration() {
-        registering = !registering;
-        if (registering) {
+    private void toggleRecordAudio() {
+        recording = !recording;
+        if (recording) {
             fileName = sound_name.getText().toString();
 
             if (fileName.isEmpty()) {
                 Toast.makeText(ctx, "Chose a name for this audio", Toast.LENGTH_SHORT).show();
-                registering = !registering;
+                recording = !recording;
                 return;
             }
 
             if (checkName(fileName)) {
                 Toast.makeText(ctx, "Audio name already exists. Change name...", Toast.LENGTH_SHORT).show();
-                registering = !registering;
+                recording = !recording;
                 return;
             }
-            register_sound.setText("Stop registration");
+            record_sound.setText("Stop recording");
+
+            HiUtils.log("HiAlgorithm", "Start execution");
+            HiSharedPreferences.setSP_TIME_PROCESS_START(this, Calendar.getInstance().getTimeInMillis());
 
             recorderThread = new HiRecorderThread(this);
             recorderThread.execute(fileName);
 
-            showRegisteringDialog();
+            showRecordingDialog();
 
         } else {
-            register_sound.setText("Register sound");
+            record_sound.setText("Record sound");
         }
     }
 
@@ -104,14 +110,14 @@ public class RegisterSoundActivity extends AppCompatActivity implements HiRecord
         return dir.exists();
     }
 
-    private void showRegisteringDialog() {
+    private void showRecordingDialog() {
         final ProgressDialog mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle("Recording");
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Stop recording", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
 
-                recorderThread.stopRegistration();
+                recorderThread.stopRecording();
 
                 mProgressDialog.dismiss();
                 HiDBUtils.saveSoundIntoDB(fileName, importanceValue);
@@ -120,7 +126,7 @@ public class RegisterSoundActivity extends AppCompatActivity implements HiRecord
 
         mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             public void onCancel(DialogInterface p1) {
-                recorderThread.stopRegistration();
+                recorderThread.stopRecording();
 
                 recorder.stop();
                 recorder.release();
@@ -130,8 +136,8 @@ public class RegisterSoundActivity extends AppCompatActivity implements HiRecord
         mProgressDialog.show();
     }
 
-    @Override public void onFinishRegistration() {
+    @Override public void onFinishRecording(ArrayList<Byte> audio) {
         HiAlgorithm algorithm = new HiAlgorithm();
-        algorithm.doTransformAndSaveSound(fileName);
+        algorithm.doTransformAndSaveSound(this, fileName, audio);
     }
 }
