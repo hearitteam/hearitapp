@@ -6,31 +6,29 @@ import android.os.AsyncTask;
 
 import java.util.ArrayList;
 
-import everis.com.hearit.RecordSoundActivity;
 import everis.com.hearit.utils.HiUtils;
 
-public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
+public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
 
-    boolean isRecording = false;
-    ArrayList<Short> audio;
-    private RecordSoundActivity callback;
+    private boolean isRecording = false;
+    private ArrayList<Short> audio;
+    private AudioRecord audioRecord;
 
-    public HiRecorderThread(RecordSoundActivity callback) {
-        this.callback = callback;
+    public HiMatchingThread() {
         this.audio = new ArrayList<>();
     }
 
     @Override
-    protected Void doInBackground(String... params) {
-        String filename = params[0];
+    protected Void doInBackground(Void... params) {
         isRecording = true;
 
         try {
             //int bufferSize = AudioRecord.getMinBufferSize(HiSoundParams.RECORDER_SAMPLERATE,
             //        HiSoundParams.RECORDER_CHANNELS, HiSoundParams.RECORDER_AUDIO_ENCODING);
+
             int bufferSize = HiSoundParams.CHUNK_SIZE;
 
-            AudioRecord audioRecord = new AudioRecord(
+            audioRecord = new AudioRecord(
                     MediaRecorder.AudioSource.MIC, HiSoundParams.RECORDER_SAMPLERATE,
                     HiSoundParams.RECORDER_CHANNELS, HiSoundParams.RECORDER_AUDIO_ENCODING, bufferSize);
 
@@ -39,8 +37,12 @@ public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
             double sum;
             double amplitude = 0;
 
+            HiMatchingAlgorithm hiMatchingAlgorithm = new HiMatchingAlgorithm();
+            hiMatchingAlgorithm.initAlgorithm();
+
             while (isRecording) {
                 sum = 0;
+                audio.clear();
 
                 int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
                 for (int i = 0; i < bufferReadResult; i++) {
@@ -49,7 +51,7 @@ public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
 
                 if (bufferReadResult > 0) {
                     amplitude = sum / bufferReadResult;
-                    HiUtils.log("recording process", "sqrt amp: " + (int) Math.sqrt(amplitude));
+                    // HiUtils.log("matching process", "sqrt amp: " + (int) Math.sqrt(amplitude));
                 }
 
                 if ((int) Math.sqrt(amplitude) > HiSoundParams.RECORDER_AMP_THRESHOLD) {
@@ -57,31 +59,23 @@ public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
                         audio.add(buffer[i]);
                         //HiUtils.log("recoding process", "byte read: " + buffer[i] + "");
                     }
-                }
 
-                //publishProgress(new Integer(r));
+                    hiMatchingAlgorithm.matchChunk(audio);
+                }
             }
-            audioRecord.stop();
         } catch (Throwable t) {
-            HiUtils.log("recording process", "Recording Failed");
+            HiUtils.log("matching process", "Recording Failed");
         }
         return null;
     }
 
-    protected void onProgressUpdate(Integer... progress) {
-        //HiUtils.log("recoding process", "progress: " + progress[0].toString());
-    }
 
     protected void onPostExecute(Void result) {
-        HiUtils.log("recording process", "stop");
-        callback.onFinishRecording(audio);
+        HiUtils.log("matching process", "stop");
     }
 
     public void stopRecording() {
         isRecording = false;
-    }
-
-    public interface HiRecorderCallback {
-        void onFinishRecording(ArrayList<Short> audio);
+        audioRecord.stop();
     }
 }

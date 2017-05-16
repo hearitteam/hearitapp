@@ -127,14 +127,19 @@ public class MainActivity extends AppCompatActivity {
                 listening = !listening;
 
                 if (listening) {
-
                     listen_sound.startAnimation(
                             AnimationUtils.loadAnimation(act, R.anim.rotate));
                     //TODO: DO SOMETHING
+                    //Intent mServiceIntent = new Intent(act, MainIntentService.class);
+                    //act.startService(mServiceIntent);
+
+                    startService(new Intent(getBaseContext(), MainService.class));
+
                 } else {
 
                     listen_sound.clearAnimation();
                     //TODO: DO SOMETHING
+                    stopService(new Intent(getBaseContext(), MainService.class));
                 }
 
             }

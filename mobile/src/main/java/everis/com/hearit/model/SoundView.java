@@ -1,46 +1,32 @@
 package everis.com.hearit.model;
 
 import com.orm.SugarRecord;
-import com.orm.dsl.Unique;
 
 /**
- * Created by mauriziomento on 21/02/16.
+ * Created by mauriziomento on 16/05/17.
  */
-public class Sound extends SugarRecord {
+public class SoundView extends SugarRecord {
 
-    @Unique
-    private String hash;
-    @Unique
     private String name;
     private int importance;
 
-    public Sound() {
+    public SoundView() {
     }
 
-    public Sound(String name) {
+    public SoundView(String name) {
         this.name = name;
         this.importance = 0;
     }
 
-    public Sound(String name, int importance) {
+    public SoundView(String name, int importance) {
         this.name = name;
         this.importance = importance;
     }
 
-    public Sound(String hash, String name, int importance) {
-        this.hash = hash;
+    public SoundView(String hash, String name, int importance) {
         this.name = name;
         this.importance = importance;
     }
-
-    public String getHash() {
-        return hash;
-    }
-
-    public void setHash(String hash) {
-        this.hash = hash;
-    }
-
 
     public String getName() {
         return name;

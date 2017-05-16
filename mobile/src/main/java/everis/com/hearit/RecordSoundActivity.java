@@ -14,12 +14,10 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import everis.com.hearit.sound.HiAlgorithm;
 import everis.com.hearit.sound.HiRecorderThread;
 import everis.com.hearit.utils.HiDBUtils;
-import everis.com.hearit.utils.HiSharedPreferences;
 import everis.com.hearit.utils.HiUtils;
 
 /**
@@ -93,7 +91,7 @@ public class RecordSoundActivity extends AppCompatActivity implements HiRecorder
             record_sound.setText("Stop recording");
 
             HiUtils.log("HiAlgorithm", "Start execution");
-            HiSharedPreferences.setSP_TIME_PROCESS_START(this, Calendar.getInstance().getTimeInMillis());
+            //HiSharedPreferences.setSP_TIME_PROCESS_START(this, Calendar.getInstance().getTimeInMillis());
 
             recorderThread = new HiRecorderThread(this);
             recorderThread.execute(fileName);
@@ -120,7 +118,7 @@ public class RecordSoundActivity extends AppCompatActivity implements HiRecorder
                 recorderThread.stopRecording();
 
                 mProgressDialog.dismiss();
-                HiDBUtils.saveSoundIntoDB(fileName, importanceValue);
+                HiDBUtils.saveSoundViewIntoDB(fileName, importanceValue);
             }
         });
 
@@ -130,14 +128,14 @@ public class RecordSoundActivity extends AppCompatActivity implements HiRecorder
 
                 recorder.stop();
                 recorder.release();
-                HiDBUtils.saveSoundIntoDB(fileName, importanceValue);
+                HiDBUtils.saveSoundViewIntoDB(fileName, importanceValue);
             }
         });
         mProgressDialog.show();
     }
 
-    @Override public void onFinishRecording(ArrayList<Byte> audio) {
+    @Override public void onFinishRecording(ArrayList<Short> audio) {
         HiAlgorithm algorithm = new HiAlgorithm();
-        algorithm.doTransformAndSaveSound(this, fileName, audio);
+        algorithm.transformSound(this, fileName, audio);
     }
 }

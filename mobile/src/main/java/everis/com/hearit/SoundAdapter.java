@@ -12,18 +12,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import everis.com.hearit.model.Sound;
+import everis.com.hearit.model.SoundView;
 
 /**
  * Created by mauriziomento on 21/02/16.
  */
-public class SoundAdapter extends ArrayAdapter<Sound> {
+public class SoundAdapter extends ArrayAdapter<SoundView> {
 
     private Context ctx;
-    private ArrayList<Sound> list;
+    private ArrayList<SoundView> list;
     private HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
 
-    public SoundAdapter(Context context, List<Sound> objects) {
+    public SoundAdapter(Context context, List<SoundView> objects) {
         super(context, R.layout.list_item, R.id.sound_name, objects);
 
         this.ctx = context;
@@ -77,7 +77,7 @@ public class SoundAdapter extends ArrayAdapter<Sound> {
         return true;
     }
 
-    public void swapItems(ArrayList<Sound> list) {
+    public void swapItems(ArrayList<SoundView> list) {
         this.list.clear();
         this.list.addAll(list);
         notifyDataSetChanged();

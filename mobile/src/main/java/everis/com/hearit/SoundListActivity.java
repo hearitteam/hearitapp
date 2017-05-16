@@ -60,14 +60,14 @@ public class SoundListActivity extends AppCompatActivity {
 		});
 		*/
 
-        soundAdapter = new SoundAdapter(this, HiDBUtils.getSoundListFromDB());
+        soundAdapter = new SoundAdapter(this, HiDBUtils.getSoundViewListFromDB());
         listview.setAdapter(soundAdapter);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        soundAdapter.swapItems(HiDBUtils.getSoundListFromDB());
+        soundAdapter.swapItems(HiDBUtils.getSoundViewListFromDB());
     }
 
 
