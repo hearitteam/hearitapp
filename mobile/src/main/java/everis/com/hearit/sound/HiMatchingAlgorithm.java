@@ -32,7 +32,7 @@ public class HiMatchingAlgorithm {
         }
     }
 
-    public void matchChunk(ArrayList<Short> audio) {
+    public List<Sound> matchChunk(ArrayList<Short> audio) {
 
         for (short s : audio) {
 //            HiUtils.log("HiMatchingAlgorithm", "audio: " + s);
@@ -66,6 +66,7 @@ public class HiMatchingAlgorithm {
         }
 
         String hash = HiAlgorithmUtils.getHash(RANGE, recordPoints);
+        //hash = "10000 6680 6258 2990 1990 1330 890 590 546 ";
 
         HiUtils.log("HiMatchingAlgorithm", "try to match: " + hash);
 
@@ -74,5 +75,7 @@ public class HiMatchingAlgorithm {
         if (!matchedSounds.isEmpty()) {
             HiUtils.log("HiMatchingAlgorithm", "MATCHEEEEEEDDDDD");
         }
+
+        return matchedSounds;
     }
 }

@@ -1,6 +1,7 @@
 package everis.com.hearit.model;
 
 import com.orm.SugarRecord;
+import com.orm.dsl.Unique;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ import java.util.List;
  */
 public class HashChunks extends SugarRecord {
 
+    @Unique
     private String hash;
 
     public HashChunks() {

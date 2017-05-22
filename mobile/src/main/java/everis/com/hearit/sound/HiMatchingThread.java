@@ -5,7 +5,11 @@ import android.media.MediaRecorder;
 import android.os.AsyncTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import everis.com.hearit.model.Sound;
 import everis.com.hearit.utils.HiUtils;
 
 public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
@@ -13,9 +17,16 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
     private boolean isRecording = false;
     private ArrayList<Short> audio;
     private AudioRecord audioRecord;
+    private Map<Sound, Integer> matchedMap;
+    private Sound matchedSound;
 
-    public HiMatchingThread() {
+    private HiMatchingCallback callback;
+
+
+    public HiMatchingThread(HiMatchingCallback callback) {
+        this.callback = callback;
         this.audio = new ArrayList<>();
+        this.matchedMap = new HashMap<>();
     }
 
     @Override
@@ -36,6 +47,10 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
             audioRecord.startRecording();
             double sum;
             double amplitude = 0;
+
+            List<Sound> matchedSounds;
+
+            int matched = 0;
 
             HiMatchingAlgorithm hiMatchingAlgorithm = new HiMatchingAlgorithm();
             hiMatchingAlgorithm.initAlgorithm();
@@ -60,7 +75,32 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
                         //HiUtils.log("recoding process", "byte read: " + buffer[i] + "");
                     }
 
-                    hiMatchingAlgorithm.matchChunk(audio);
+                    matchedSounds = hiMatchingAlgorithm.matchChunk(audio);
+
+                    if (!matchedSounds.isEmpty()) {
+                        for (Sound s : matchedSounds) {
+                            Integer count = matchedMap.get(s);
+                            if (count == null) {
+                                matchedMap.put(s, 1);
+                                if (1 == HiSoundParams.MATCHED_HITS_THRESHOLD) {
+                                    matchedSound = s;
+                                }
+                            } else {
+                                matchedMap.put(s, count + 1);
+                                if (count + 1 == HiSoundParams.MATCHED_HITS_THRESHOLD) {
+                                    matchedSound = s;
+                                }
+                            }
+                        }
+                    } else {
+                        matched++;
+                        matchedMap.clear();
+                        matchedSound = null;
+                    }
+                }
+
+                if (matchedSound != null) {
+                    callback.onSoundMatched(matchedSound);
                 }
             }
         } catch (Throwable t) {
@@ -77,5 +117,9 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
     public void stopRecording() {
         isRecording = false;
         audioRecord.stop();
+    }
+
+    public interface HiMatchingCallback {
+        void onSoundMatched(Sound soundMatched);
     }
 }

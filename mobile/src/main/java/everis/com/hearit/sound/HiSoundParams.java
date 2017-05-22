@@ -19,12 +19,14 @@ public class HiSoundParams {
 
     //public static int CHUNK_SIZE = 512;
     //public static int CHUNK_SIZE = 4096;
-    public static int CHUNK_SIZE = 4096 * 2;
+    public static int CHUNK_SIZE = 4096 * 4;
     public static int LOWER_LIMIT = 400;
 
     public static int UPPER_LIMIT = 10000;
     //public static int UPPER_LIMIT = 7000;
     public static int BINS = 8;
 
-    public static int RECORDER_AMP_THRESHOLD = 100;
+    public static int RECORDER_AMP_THRESHOLD = 700;
+
+    public static int MATCHED_HITS_THRESHOLD = 1;
 }

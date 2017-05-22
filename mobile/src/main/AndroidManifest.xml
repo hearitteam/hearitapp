@@ -48,16 +48,19 @@
         <activity
             android:name=".SoundListActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".MatchedActivity"/>
 
-        <service
-            android:name=".MainIntentService"
-            android:exported="false">
-        </service>
         <service
             android:name=".MainService"
             android:enabled="true"
             android:exported="false">
         </service>
+
+        <receiver android:name=".MatchedReceiver">
+            <intent-filter>
+                <action android:name="everis.com.hearit.matchedSound"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -1,12 +1,14 @@
 package everis.com.hearit.model;
 
 import com.orm.SugarRecord;
+import com.orm.dsl.Unique;
 
 /**
  * Created by mauriziomento on 16/05/17.
  */
 public class SoundView extends SugarRecord {
 
+    @Unique
     private String name;
     private int importance;
 

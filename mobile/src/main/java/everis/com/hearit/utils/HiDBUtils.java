@@ -14,13 +14,21 @@ import everis.com.hearit.model.SoundView;
 public class HiDBUtils {
 
     public static void saveSoundIntoDB(String hash, String name, int importance) {
-        Sound sound = new Sound(hash, name, importance);
-        sound.save();
+
+        List<Sound> sounds = Sound.find(Sound.class, "hash = ? and name = ?", hash, name);
+        if (sounds.isEmpty()) {
+            Sound sound = new Sound(hash, name, importance);
+            sound.save();
+        }
     }
 
     public static void saveHashIntoDB(String hash) {
-        HashChunks hashChunks = new HashChunks(hash);
-        hashChunks.save();
+
+        List<HashChunks> hashChunkses = HashChunks.find(HashChunks.class, "hash = ?", hash);
+        if (hashChunkses.isEmpty()) {
+            HashChunks hashChunks = new HashChunks(hash);
+            hashChunks.save();
+        }
     }
 
     public static ArrayList<Sound> getSoundListFromDB() {
