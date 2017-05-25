@@ -77,6 +77,20 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
 
                     if (!matchedSounds.isEmpty()) {
                         for (Sound s : matchedSounds) {
+                            Integer count = matchedMap.get(s);
+                            if (count == null) {
+                                matchedMap.put(s, 1);
+                                if (1 == HiSoundParams.MATCHED_HITS_THRESHOLD) {
+                                    matchedSound = s;
+                                }
+                            } else {
+                                matchedMap.put(s, count + 1);
+                                if (count + 1 == HiSoundParams.MATCHED_HITS_THRESHOLD) {
+                                    matchedSound = s;
+                                }
+                            }
+
+                            /*
                             for (Map.Entry<Sound, Integer> m : matchedMap.entrySet()) {
                                 if (s.getHash() == m.getKey().getHash()) {
                                     Integer count = m.getValue();
@@ -93,7 +107,7 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
                                     }
                                 }
                             }
-
+                            */
                         }
                     } else {
                         //TODO: Decrement hit list

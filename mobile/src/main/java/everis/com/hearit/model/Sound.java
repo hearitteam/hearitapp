@@ -58,4 +58,20 @@ public class Sound extends SugarRecord {
     public void setImportance(int importance) {
         this.importance = importance;
     }
+
+    @Override
+    public int hashCode() {
+        if (getHash() != null && getName() != null) {
+            return getHash().hashCode() + getName().hashCode();
+        }
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        Sound a = (Sound) o;
+        boolean hash = a.getHash().equals(getHash());
+        boolean name = a.getName().equals(getName());
+        return hash && name;
+    }
 }
