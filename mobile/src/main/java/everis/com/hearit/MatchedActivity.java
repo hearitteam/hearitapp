@@ -28,6 +28,11 @@ public class MatchedActivity extends AppCompatActivity {
 
 
         // Restart Service
+        //startService(new Intent(getBaseContext(), MainService.class));
+    }
+
+    @Override protected void onDestroy() {
+        super.onDestroy();
         startService(new Intent(getBaseContext(), MainService.class));
     }
 }

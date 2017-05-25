@@ -8,9 +8,6 @@ import everis.com.hearit.utils.HiUtils;
 
 public class HiAlgorithmUtils {
 
-    //NB: >> FUZ_FACTOR ===> >> Precision
-    private static final int FUZ_FACTOR = 10;
-
     public static int[] generateLogSpace(int min, int max, int logBins) {
         double logarithmicBase = Math.E;
         double logMin = Math.log(min);
@@ -50,7 +47,7 @@ public class HiAlgorithmUtils {
         String hashNoCorrection = "";
         int correction = 0;
         for (int i = recordPoints.length - 1; i >= 0; i--) {
-            correction = recordPoints[i] % (RANGE[i] / FUZ_FACTOR);
+            correction = recordPoints[i] % (RANGE[i] / HiSoundParams.FUZ_FACTOR);
             //correction = recordPoints[i] % FUZ_FACTOR;
             hash += String.valueOf((recordPoints[i] - correction) + " ");
             hashNoCorrection += String.valueOf(recordPoints[i] + " ");

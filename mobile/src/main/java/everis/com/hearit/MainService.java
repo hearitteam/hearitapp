@@ -42,6 +42,7 @@ public class MainService extends Service implements HiMatchingThread.HiMatchingC
         super.onDestroy();
         Toast.makeText(this, "Service Stopped", Toast.LENGTH_SHORT).show();
         hiMatchingThread.stopRecording();
+        hiMatchingThread.cancel(true);
     }
 
     @Override public void onSoundMatched(Sound soundMatched) {

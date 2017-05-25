@@ -50,8 +50,6 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
 
             List<Sound> matchedSounds;
 
-            int matched = 0;
-
             HiMatchingAlgorithm hiMatchingAlgorithm = new HiMatchingAlgorithm();
             hiMatchingAlgorithm.initAlgorithm();
 
@@ -79,27 +77,33 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
 
                     if (!matchedSounds.isEmpty()) {
                         for (Sound s : matchedSounds) {
-                            Integer count = matchedMap.get(s);
-                            if (count == null) {
-                                matchedMap.put(s, 1);
-                                if (1 == HiSoundParams.MATCHED_HITS_THRESHOLD) {
-                                    matchedSound = s;
-                                }
-                            } else {
-                                matchedMap.put(s, count + 1);
-                                if (count + 1 == HiSoundParams.MATCHED_HITS_THRESHOLD) {
-                                    matchedSound = s;
+                            for (Map.Entry<Sound, Integer> m : matchedMap.entrySet()) {
+                                if (s.getHash() == m.getKey().getHash()) {
+                                    Integer count = m.getValue();
+                                    if (count == null) {
+                                        matchedMap.put(s, 1);
+                                        if (1 == HiSoundParams.MATCHED_HITS_THRESHOLD) {
+                                            matchedSound = s;
+                                        }
+                                    } else {
+                                        matchedMap.put(s, count + 1);
+                                        if (count + 1 == HiSoundParams.MATCHED_HITS_THRESHOLD) {
+                                            matchedSound = s;
+                                        }
+                                    }
                                 }
                             }
+
                         }
                     } else {
-                        matched++;
+                        //TODO: Decrement hit list
                         matchedMap.clear();
                         matchedSound = null;
                     }
                 }
 
                 if (matchedSound != null) {
+                    isRecording = false;
                     callback.onSoundMatched(matchedSound);
                 }
             }
@@ -114,9 +118,15 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
         HiUtils.log("matching process", "stop");
     }
 
+    public void startRecording() {
+        isRecording = true;
+    }
+
     public void stopRecording() {
         isRecording = false;
         audioRecord.stop();
+        audioRecord.release();
+        audioRecord = null;
     }
 
     public interface HiMatchingCallback {
