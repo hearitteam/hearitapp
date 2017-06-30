@@ -1,17 +1,15 @@
 package everis.com.hearit.model;
 
 import com.orm.SugarRecord;
-import com.orm.dsl.Unique;
 
 /**
  * Created by mauriziomento on 21/02/16.
  */
 public class Sound extends SugarRecord {
 
-    @Unique
     private String hash;
-    @Unique
     private String name;
+
     private int importance;
 
     public Sound() {
