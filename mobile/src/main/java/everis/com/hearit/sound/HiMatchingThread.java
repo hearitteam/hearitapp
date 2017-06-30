@@ -76,10 +76,12 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
                     matchedSounds = hiMatchingAlgorithm.matchChunk(audio);
 
                     if (!matchedSounds.isEmpty()) {
+                        //TODO: manage sound map outside for loop for "best hit" (Anna)
                         for (Sound s : matchedSounds) {
                             Integer count = matchedMap.get(s);
                             if (count == null) {
                                 matchedMap.put(s, 1);
+                                //TODO: manage dynamic threshold (Francesco)
                                 if (1 == HiSoundParams.MATCHED_HITS_THRESHOLD) {
                                     matchedSound = s;
                                 }

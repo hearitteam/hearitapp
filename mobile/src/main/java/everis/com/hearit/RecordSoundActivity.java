@@ -3,7 +3,6 @@ package everis.com.hearit;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.media.AudioRecord;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -26,7 +25,6 @@ import everis.com.hearit.utils.HiUtils;
 public class RecordSoundActivity extends AppCompatActivity implements HiRecorderThread.HiRecorderCallback {
 
     private String fileName;
-    private AudioRecord recorder = null;
     private Context ctx;
     private EditText sound_name;
     private TextView importance;
@@ -126,8 +124,6 @@ public class RecordSoundActivity extends AppCompatActivity implements HiRecorder
             public void onCancel(DialogInterface p1) {
                 recorderThread.stopRecording();
 
-                recorder.stop();
-                recorder.release();
                 HiDBUtils.saveSoundViewIntoDB(fileName, importanceValue);
             }
         });
