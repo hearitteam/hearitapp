@@ -17,6 +17,8 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
     private boolean isRecording = false;
     private ArrayList<Short> audio;
     private AudioRecord audioRecord;
+    //TODO change MAP type (Anna)
+    //private Map<Sound, Pair<Integer, Integer>> matchedMap;
     private Map<Sound, Integer> matchedMap;
     private Sound matchedSound;
 
@@ -76,12 +78,12 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
                     matchedSounds = hiMatchingAlgorithm.matchChunk(audio);
 
                     if (!matchedSounds.isEmpty()) {
-                        //TODO: manage sound map outside for loop for "best hit" (Anna)
+                        //TODO: manage sound map outside "for" loop for "best hit" (Anna)
                         for (Sound s : matchedSounds) {
                             Integer count = matchedMap.get(s);
                             if (count == null) {
                                 matchedMap.put(s, 1);
-                                //TODO: manage dynamic threshold (Francesco)
+                                //TODO: manage dynamic threshold (Anna)
                                 if (1 == HiSoundParams.MATCHED_HITS_THRESHOLD) {
                                     matchedSound = s;
                                 }
@@ -112,7 +114,7 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
                             */
                         }
                     } else {
-                        //TODO: Decrement hit list
+                        //TODO: Manage miss counter
                         matchedMap.clear();
                         matchedSound = null;
                     }

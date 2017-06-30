@@ -10,7 +10,7 @@ public class HiSoundParams {
 
 
     //NB: >> FUZ_FACTOR ===> >> Precision
-    public static final int FUZ_FACTOR = 8;
+    public static final int FUZ_FACTOR = 4;
     //public static int RECORDER_SAMPLERATE = 8000;
     public static int RECORDER_SAMPLERATE = 44100;
     public static int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_MONO;

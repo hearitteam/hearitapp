@@ -8,6 +8,7 @@ import android.widget.Toast;
 import everis.com.hearit.model.Sound;
 import everis.com.hearit.sound.HiMatchingThread;
 
+//TODO: analyze app kill behavior (Service VS IntentService)
 public class MainService extends Service implements HiMatchingThread.HiMatchingCallback {
 
     private HiMatchingThread hiMatchingThread;

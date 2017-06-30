@@ -3,7 +3,6 @@ package everis.com.hearit.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import everis.com.hearit.model.HashChunks;
 import everis.com.hearit.model.Sound;
 import everis.com.hearit.model.SoundView;
 
@@ -19,15 +18,6 @@ public class HiDBUtils {
         if (sounds.isEmpty()) {
             Sound sound = new Sound(hash, name, importance);
             sound.save();
-        }
-    }
-
-    public static void saveHashIntoDB(String hash) {
-
-        List<HashChunks> hashChunkses = HashChunks.find(HashChunks.class, "hash = ?", hash);
-        if (hashChunkses.isEmpty()) {
-            HashChunks hashChunks = new HashChunks(hash);
-            hashChunks.save();
         }
     }
 
@@ -49,12 +39,10 @@ public class HiDBUtils {
     public static void deleteSounds() {
         Sound.deleteAll(Sound.class);
         SoundView.deleteAll(SoundView.class);
-        HashChunks.deleteAll(HashChunks.class);
     }
 
     public static void saveHashAndSound(String hash, String name, int importance) {
         saveSoundIntoDB(hash, name, importance);
-        saveHashIntoDB(hash);
     }
 
     public static List<Sound> getSoundsByHash(String hash) {
