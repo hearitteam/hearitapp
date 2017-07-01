@@ -47,6 +47,7 @@ public class HiMatchingAlgorithm {
         //Perform FFT analysis on the chunk:
         matrix = FFT.fft(complex);
 
+        /*
         for (int freq = HiSoundParams.LOWER_LIMIT; freq <= HiSoundParams.UPPER_LIMIT; freq++) {
 
             //TODO: improve cast (use Round and handle first and last index??)
@@ -62,6 +63,29 @@ public class HiMatchingAlgorithm {
             if (mag > highscores[bin]) {
                 highscores[bin] = mag;
                 recordPoints[bin] = freq;
+            }
+        }
+        */
+
+
+        for (int k = (int) (HiSoundParams.LOWER_LIMIT / freqRes); k < (int) (HiSoundParams.UPPER_LIMIT / freqRes); k++) {
+            //TODO: improve cast (use Round and handle first and last index??)
+            float freq = freqRes * (k + 1);
+
+            //Get the magnitude:
+            //double mag = Math.log(matrix[w][k].abs() + 1);
+            double mag = Math.sqrt(
+                    (matrix[k].re() * matrix[k].re()) + (matrix[k].im() * matrix[k].im())
+            );
+
+            //Find out which range we are in:
+            int bin = HiAlgorithmUtils.getIndex(RANGE, freq);
+
+            //Save the highest magnitude and corresponding frequency:
+            if (mag > highscores[bin]) {
+                HiUtils.log("Saved highscore", "mag: " + mag + " freq: " + freq);
+                highscores[bin] = mag;
+                recordPoints[bin] = (int) freq;
             }
         }
 

@@ -41,6 +41,18 @@ public class HiAlgorithmUtils {
         return i;
     }
 
+    //Find out in which BIN
+    public static int getIndex(int[] RANGE, float freq) {
+        int i = 0;
+        while (i < RANGE.length - 1) {
+            if (freq >= RANGE[i] && freq < RANGE[i + 1]) {
+                return i;
+            }
+            i++;
+        }
+        return i;
+    }
+
     public static String getHash(int[] RANGE, int[] recordPoints) {
 
         String hash = "";

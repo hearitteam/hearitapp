@@ -59,6 +59,7 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
                 sum = 0;
                 audio.clear();
 
+
                 int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
                 for (int i = 0; i < bufferReadResult; i++) {
                     sum += buffer[i] * buffer[i];

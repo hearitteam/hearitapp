@@ -110,21 +110,51 @@ public class HiAlgorithm {
 
         for (int w = 0; w < nWindows; w++) {
             //For every line of data:
+            /*
             for (int freq = HiSoundParams.LOWER_LIMIT; freq <= HiSoundParams.UPPER_LIMIT; freq++) {
 
                 //TODO: improve cast (use Round and handle first and last index??)
                 int k = (int) (freq / freqRes);
 
                 //Get the magnitude:
-                double mag = Math.log(matrix[w][k].abs() + 1);
+                //double mag = Math.log(matrix[w][k].abs() + 1);
+                double mag = Math.sqrt(
+                        (matrix[w][k].re() * matrix[w][k].re()) + (matrix[w][k].im() * matrix[w][k].im())
+                );
 
                 //Find out which range we are in:
                 int bin = HiAlgorithmUtils.getIndex(RANGE, freq);
 
                 //Save the highest magnitude and corresponding frequency:
                 if (mag > highscores[bin]) {
+                    HiUtils.log("Saved highscore", "mag: " + mag + " freq: " + freq);
                     highscores[bin] = mag;
                     recordPoints[bin] = freq;
+                }
+            }
+            */
+
+
+            //For every line of data:
+
+            for (int k = (int) (HiSoundParams.LOWER_LIMIT / freqRes); k < (int) (HiSoundParams.UPPER_LIMIT / freqRes); k++) {
+                //TODO: improve cast (use Round and handle first and last index??)
+                float freq = freqRes * (k + 1);
+
+                //Get the magnitude:
+                //double mag = Math.log(matrix[w][k].abs() + 1);
+                double mag = Math.sqrt(
+                        (matrix[w][k].re() * matrix[w][k].re()) + (matrix[w][k].im() * matrix[w][k].im())
+                );
+
+                //Find out which range we are in:
+                int bin = HiAlgorithmUtils.getIndex(RANGE, freq);
+
+                //Save the highest magnitude and corresponding frequency:
+                if (mag > highscores[bin]) {
+                    HiUtils.log("Saved highscore", "mag: " + mag + " freq: " + freq);
+                    highscores[bin] = mag;
+                    recordPoints[bin] = (int) freq;
                 }
             }
 
