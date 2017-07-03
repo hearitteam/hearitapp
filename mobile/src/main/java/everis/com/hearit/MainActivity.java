@@ -1,6 +1,7 @@
 package everis.com.hearit;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -25,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Button show_list;
     private ImageView listen_sound;
-    private boolean listening = false;
     private MainActivity act;
 
     @Override
@@ -106,6 +106,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(isListenerServiceRunning()) {
+            if(listen_sound.getAnimation() == null) {
+                listen_sound.startAnimation(AnimationUtils.loadAnimation(act, R.anim.rotate));
+            }
+        } else if(listen_sound != null && listen_sound.getAnimation() != null){
+            listen_sound.clearAnimation();
+        }
+    }
+
     private void startApp() {
         act = this;
 
@@ -122,26 +135,31 @@ public class MainActivity extends AppCompatActivity {
         listen_sound.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                listening = !listening;
-
-                if (listening) {
-                    listen_sound.startAnimation(
-                            AnimationUtils.loadAnimation(act, R.anim.rotate));
-                    //TODO: DO SOMETHING
-                    //Intent mServiceIntent = new Intent(act, MainIntentService.class);
-                    //act.startService(mServiceIntent);
-
-                    startService(new Intent(getBaseContext(), MainService.class));
-
-                } else {
-
-                    listen_sound.clearAnimation();
-                    //TODO: DO SOMETHING
-                    stopService(new Intent(getBaseContext(), MainService.class));
-                }
-
+                setService();
             }
         });
     }
+
+    private void setService() {
+        if(!isListenerServiceRunning()) {
+            startService(new Intent(getBaseContext(), MainService.class));
+            listen_sound.startAnimation(AnimationUtils.loadAnimation(act, R.anim.rotate));
+        } else {
+            stopService(new Intent(getBaseContext(), MainService.class));
+            listen_sound.clearAnimation();
+        }
+    }
+
+    private boolean isListenerServiceRunning() {
+        String listenerService = MainService.class.toString().replace("class ", "");
+
+        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (listenerService.equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
