@@ -4,6 +4,9 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import everis.com.hearit.RecordSoundActivity;
@@ -39,10 +42,33 @@ public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
             double sum;
             double amplitude = 0;
 
+            byte[] audioData = new byte[bufferSize];
+
+            String filePath = HiUtils.getSoundsPath() + "/" + callback.fileName +".wav";
+
+            FileOutputStream os = null;
+            try {
+                os = new FileOutputStream(filePath);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            int read = 0;
+
             while (isRecording) {
                 sum = 0;
 
                 int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
+
+                read = audioRecord.read(audioData,0,bufferSize);
+                if(AudioRecord.ERROR_INVALID_OPERATION != read){
+                    try {
+                        os.write(audioData);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 for (int i = 0; i < bufferReadResult; i++) {
                     sum += buffer[i] * buffer[i];
                 }

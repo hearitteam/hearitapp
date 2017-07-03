@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     public static final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 2;
+    public static boolean restartListenerService = false;
 
     private Button show_list;
     private ImageView listen_sound;
@@ -114,7 +115,10 @@ public class MainActivity extends AppCompatActivity {
             if(listen_sound.getAnimation() == null) {
                 listen_sound.startAnimation(AnimationUtils.loadAnimation(act, R.anim.rotate));
             }
-        } else if(listen_sound != null && listen_sound.getAnimation() != null){
+        } else if(restartListenerService) {
+            setService();
+        }
+        else if(listen_sound != null && listen_sound.getAnimation() != null){
             listen_sound.clearAnimation();
         }
     }

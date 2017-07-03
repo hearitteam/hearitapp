@@ -1,6 +1,8 @@
 package everis.com.hearit;
 
 import android.content.Context;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,11 +10,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import everis.com.hearit.model.SoundView;
+import everis.com.hearit.sound.HiSoundParams;
+import everis.com.hearit.utils.HiUtils;
 
 /**
  * Created by mauriziomento on 21/02/16.
@@ -37,8 +45,8 @@ public class SoundAdapter extends ArrayAdapter<SoundView> {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
 
-        LayoutInflater inflater = (LayoutInflater) ctx
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
         View rowView = inflater.inflate(R.layout.list_item, parent, false);
 
         TextView textView = (TextView) rowView.findViewById(R.id.sound_name);
@@ -59,6 +67,9 @@ public class SoundAdapter extends ArrayAdapter<SoundView> {
         sound_icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                playRecording(list.get(position).getName());
+
                 //TODO: REPRODUCE SOUND ?
             }
         });
@@ -77,9 +88,37 @@ public class SoundAdapter extends ArrayAdapter<SoundView> {
         return true;
     }
 
-    public void swapItems(ArrayList<SoundView> list) {
+   /* public void UpdateItems(ArrayList<SoundView> list) {
         this.list.clear();
         this.list.addAll(list);
-        notifyDataSetChanged();
+
+        this.notifyDataSetChanged();
+    }*/
+
+    private void playRecording(String fileName) {
+
+        byte[] audioData = null;
+
+        fileName = HiUtils.getFilePath(fileName);
+
+        try {
+            InputStream inputStream = new FileInputStream(fileName);
+
+            int minBufferSize = AudioTrack.getMinBufferSize(HiSoundParams.RECORDER_SAMPLERATE, HiSoundParams.PLAYER_CHANNELS, HiSoundParams.RECORDER_AUDIO_ENCODING);
+            audioData = new byte[minBufferSize];
+
+            AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, HiSoundParams.RECORDER_SAMPLERATE,HiSoundParams.PLAYER_CHANNELS, HiSoundParams.RECORDER_AUDIO_ENCODING,minBufferSize, AudioTrack.MODE_STREAM);
+            audioTrack.play();
+            int i= 0;
+
+            while((i = inputStream.read(audioData)) != -1) {
+                audioTrack.write(audioData,0,i);
+            }
+
+        } catch(FileNotFoundException fe) {
+            HiUtils.log("Play sound", "File not found");
+        } catch(IOException io) {
+            HiUtils.log("Play sound","IO Exception");
+        }
     }
 }

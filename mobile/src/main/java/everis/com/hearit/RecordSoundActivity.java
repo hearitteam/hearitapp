@@ -24,7 +24,7 @@ import everis.com.hearit.utils.HiUtils;
  */
 public class RecordSoundActivity extends AppCompatActivity implements HiRecorderThread.HiRecorderCallback {
 
-    private String fileName;
+    public String fileName;
     private Context ctx;
     private EditText sound_name;
     private TextView importance;
@@ -117,6 +117,7 @@ public class RecordSoundActivity extends AppCompatActivity implements HiRecorder
 
                 mProgressDialog.dismiss();
                 HiDBUtils.saveSoundViewIntoDB(fileName, importanceValue);
+                finish();
             }
         });
 
@@ -125,8 +126,10 @@ public class RecordSoundActivity extends AppCompatActivity implements HiRecorder
                 recorderThread.stopRecording();
 
                 HiDBUtils.saveSoundViewIntoDB(fileName, importanceValue);
+                finish();
             }
         });
+
         mProgressDialog.show();
     }
 

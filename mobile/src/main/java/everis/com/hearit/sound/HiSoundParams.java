@@ -14,6 +14,7 @@ public class HiSoundParams {
     //public static int RECORDER_SAMPLERATE = 8000;
     public static int RECORDER_SAMPLERATE = 44100;
     public static int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_MONO;
+    public static int PLAYER_CHANNELS = AudioFormat.CHANNEL_OUT_MONO;
     //public static int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_8BIT;
     public static int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
     //public static int CHUNK_SIZE = 512;

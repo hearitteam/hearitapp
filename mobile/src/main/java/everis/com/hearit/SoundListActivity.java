@@ -19,7 +19,7 @@ import everis.com.hearit.utils.HiUtils;
  */
 public class SoundListActivity extends AppCompatActivity {
 
-    private SoundAdapter soundAdapter;
+    private ListView listview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +37,7 @@ public class SoundListActivity extends AppCompatActivity {
             }
         });
 
-        final ListView listview = (ListView) findViewById(R.id.listview);
+        listview = (ListView) findViewById(R.id.listview);
 
 		/*
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -60,16 +60,15 @@ public class SoundListActivity extends AppCompatActivity {
 		});
 		*/
 
-        soundAdapter = new SoundAdapter(this, HiDBUtils.getSoundViewListFromDB());
-        listview.setAdapter(soundAdapter);
+        listview.setAdapter(new SoundAdapter(this, HiDBUtils.getSoundViewListFromDB()));
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        soundAdapter.swapItems(HiDBUtils.getSoundViewListFromDB());
-    }
 
+        listview.setAdapter(new SoundAdapter(this, HiDBUtils.getSoundViewListFromDB()));
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -90,6 +89,9 @@ public class SoundListActivity extends AppCompatActivity {
             HiSharedPreferences.clearAll(this);
             HiDBUtils.deleteSounds();
             HiUtils.deleteAudioFiles();
+
+            listview.setAdapter(null);
+
             return true;
         }
 

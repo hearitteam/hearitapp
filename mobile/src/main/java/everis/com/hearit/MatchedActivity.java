@@ -31,8 +31,12 @@ public class MatchedActivity extends AppCompatActivity {
         //startService(new Intent(getBaseContext(), MainService.class));
     }
 
+    @Override public void onBackPressed() {
+        MainActivity.restartListenerService = true;
+        super.onBackPressed();
+    }
+
     @Override protected void onDestroy() {
         super.onDestroy();
-        startService(new Intent(getBaseContext(), MainService.class));
     }
 }
