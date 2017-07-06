@@ -14,8 +14,8 @@ import everis.com.hearit.utils.HiUtils;
 
 public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
 
-    boolean isRecording = false;
-    ArrayList<Short> audio;
+    private boolean isRecording = false;
+    private ArrayList<Short> audio;
     private RecordSoundActivity callback;
 
     public HiRecorderThread(RecordSoundActivity callback) {
@@ -25,63 +25,70 @@ public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
 
     @Override
     protected Void doInBackground(String... params) {
-        String filename = params[0];
+        //String filename = params[0];
+
+        String filePath;
+        double sum;
+        double amplitude;
+        int read;
+        int bufferReadResult;
+        int bufferSize = HiSoundParams.CHUNK_SIZE;
+        short[] buffer = new short[bufferSize];
+        byte[] audioData = new byte[bufferSize];
+        FileOutputStream os = null;
+
         isRecording = true;
 
         try {
             //int bufferSize = AudioRecord.getMinBufferSize(HiSoundParams.RECORDER_SAMPLERATE,
             //        HiSoundParams.RECORDER_CHANNELS, HiSoundParams.RECORDER_AUDIO_ENCODING);
-            int bufferSize = HiSoundParams.CHUNK_SIZE;
+
+            filePath = HiUtils.getSoundsPath() + "/" + callback.fileName +".wav";
 
             AudioRecord audioRecord = new AudioRecord(
-                    MediaRecorder.AudioSource.MIC, HiSoundParams.RECORDER_SAMPLERATE,
-                    HiSoundParams.RECORDER_CHANNELS, HiSoundParams.RECORDER_AUDIO_ENCODING, bufferSize);
+                    MediaRecorder.AudioSource.MIC,
+                    HiSoundParams.RECORDER_SAMPLERATE,
+                    HiSoundParams.RECORDER_CHANNELS,
+                    HiSoundParams.RECORDER_AUDIO_ENCODING,
+                    bufferSize);
 
-            short[] buffer = new short[bufferSize];
             audioRecord.startRecording();
-            double sum;
-            double amplitude = 0;
 
-            byte[] audioData = new byte[bufferSize];
-
-            String filePath = HiUtils.getSoundsPath() + "/" + callback.fileName +".wav";
-
-            FileOutputStream os = null;
             try {
                 os = new FileOutputStream(filePath);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
 
-            int read = 0;
-
             while (isRecording) {
                 sum = 0;
+                amplitude = 0;
 
-                int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
-
+                bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
                 read = audioRecord.read(audioData,0,bufferSize);
-                if(AudioRecord.ERROR_INVALID_OPERATION != read){
+
+                if(AudioRecord.ERROR_INVALID_OPERATION != read) {
+
                     try {
                         os.write(audioData);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
 
-                for (int i = 0; i < bufferReadResult; i++) {
-                    sum += buffer[i] * buffer[i];
-                }
-
-                if (bufferReadResult > 0) {
-                    amplitude = sum / bufferReadResult;
-                    HiUtils.log("recording process", "sqrt amp: " + (int) Math.sqrt(amplitude));
-                }
-
-                if ((int) Math.sqrt(amplitude) > HiSoundParams.RECORDER_AMP_THRESHOLD) {
                     for (int i = 0; i < bufferReadResult; i++) {
-                        audio.add(buffer[i]);
-                        //HiUtils.log("recoding process", "byte read: " + buffer[i] + "");
+                        sum += buffer[i] * buffer[i];
+                    }
+
+                    if (bufferReadResult > 0) {
+                        amplitude = sum / bufferReadResult;
+                        //HiUtils.log("recording process", "sqrt amp: " + (int) Math.sqrt(amplitude));
+                    }
+
+                    if ((int) Math.sqrt(amplitude) > HiSoundParams.RECORDER_AMP_THRESHOLD) {
+                        for (int i = 0; i < bufferReadResult; i++) {
+                            audio.add(buffer[i]);
+                            //HiUtils.log("recoding process", "byte read: " + buffer[i] + "");
+                        }
                     }
                 }
 
