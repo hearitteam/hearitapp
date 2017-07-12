@@ -2,7 +2,11 @@ package everis.com.hearit.sound;
 
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.media.audiofx.AcousticEchoCanceler;
+import android.media.audiofx.AutomaticGainControl;
+import android.media.audiofx.NoiseSuppressor;
 import android.os.AsyncTask;
+import android.os.Build;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -48,6 +52,8 @@ public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
 
             bufferSize = AudioRecord.getMinBufferSize(HiSoundParams.RECORDER_SAMPLERATE, HiSoundParams.RECORDER_CHANNELS, HiSoundParams.RECORDER_AUDIO_ENCODING);
 
+            buffer = new short[bufferSize];
+
             // Create a new AudioRecord object to record the audio.
             AudioRecord audioRecord = new AudioRecord(
                     MediaRecorder.AudioSource.MIC,
@@ -56,7 +62,26 @@ public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
                     HiSoundParams.RECORDER_AUDIO_ENCODING,
                     bufferSize);
 
-            buffer = new short[bufferSize];
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+
+                int audioSessionId = audioRecord.getAudioSessionId();
+
+                if (NoiseSuppressor.create(audioSessionId) == null) {
+                    HiUtils.log("recording process", "NoiseSuppressor failed :(");
+                } else {
+                    HiUtils.log("recording process", "NoiseSuppressor ON");
+                }
+                if (AutomaticGainControl.create(audioSessionId) == null) {
+                    HiUtils.log("recording process", "AutomaticGainControl failed :(");
+                } else {
+                    HiUtils.log("recording process", "AutomaticGainControl ON");
+                }
+                if (AcousticEchoCanceler.create(audioSessionId) == null) {
+                    HiUtils.log("recording process", "AcousticEchoCanceler failed :(");
+                } else {
+                    HiUtils.log("recording process", "AcousticEchoCanceler ON");
+                }
+            }
 
             audioRecord.startRecording();
 
