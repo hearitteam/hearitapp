@@ -16,7 +16,7 @@ public class HiMatchingAlgorithm {
 
         String hash = CalculateHash(audio);
 
-        //HiUtils.log("HiMatchingAlgorithm", "try to match: " + hash);
+        HiUtils.log("HiMatchingAlgorithm", "try to match: " + hash);
 
         return PartialMatched(allSound, hash);
     }
@@ -86,10 +86,11 @@ public class HiMatchingAlgorithm {
             int percentage = ((countEquals * 100) / soundArrayHash.length);
 
             if (percentage >= HiSoundParams.PERCENTAGE_MATCHED) {
-                //if (!soundMatched.contains(sound)) {
-                soundMatched.add(sound.getName());
-                //}
-                HiUtils.log("HiMatchingAlgorithm", "matched: " + hash + "   with: " + sound.getName());
+                String soundName = sound.getName();
+                if (!soundMatched.contains(soundName)) {
+                    soundMatched.add(soundName);
+                }
+                HiUtils.log("HiMatchingAlgorithm", "matched: " + hash + "   with: " + soundName);
             }
         }
 

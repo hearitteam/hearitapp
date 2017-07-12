@@ -10,6 +10,7 @@ import java.util.List;
 import everis.com.hearit.model.Sound;
 import everis.com.hearit.sound.HiMatchingThread;
 import everis.com.hearit.utils.HiDBUtils;
+import everis.com.hearit.utils.HiUtils;
 
 public class MainService extends Service implements HiMatchingThread.HiMatchingCallback {
 
@@ -27,6 +28,10 @@ public class MainService extends Service implements HiMatchingThread.HiMatchingC
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         List<Sound> allSound = HiDBUtils.getSoundListFromDB();
+
+        for (Sound s : allSound) {
+            HiUtils.log("HiMatchingAlgorithm", "Existing: " + s.getHash() + " -" + s.getName());
+        }
 
         Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
 
@@ -51,7 +56,8 @@ public class MainService extends Service implements HiMatchingThread.HiMatchingC
         hiMatchingThread.cancel(true);
     }
 
-    @Override public void onSoundMatched(String soundNameMatched) {
+    @Override
+    public void onSoundMatched(String soundNameMatched) {
         sendMatchedBroadcast(soundNameMatched);
     }
 }
