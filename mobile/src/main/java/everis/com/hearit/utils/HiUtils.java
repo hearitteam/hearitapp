@@ -1,6 +1,7 @@
 package everis.com.hearit.utils;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
@@ -20,25 +21,8 @@ public class HiUtils {
         Log.v(TAG, msg);
     }
 
-    public static void log(String msg) {
-        Log.v("Hear-It", msg);
-    }
-
-    public static void toastShort(Context ctx, String msg) {
-        toast(ctx, msg, true);
-    }
-
-    public static void toastLong(Context ctx, String msg) {
-        toast(ctx, msg, false);
-    }
-
-    private static void toast(Context ctx, String msg, boolean lengthShort) {
-        if (ctx != null) {
-            if (lengthShort)
-                Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show();
-            else
-                Toast.makeText(ctx, msg, Toast.LENGTH_LONG).show();
-        }
+    public static void deleteAudioFile(String soundName) {
+        deleteRecursive(new File(HiUtils.getFilePath(soundName)));
     }
 
     public static void deleteAudioFiles() {
@@ -65,6 +49,10 @@ public class HiUtils {
 
     public static String getFilePath(String filename) {
         return getFilePath(filename, AUDIO_RECORDER_FILE_EXT_WAV);
+    }
+
+    public static File GetFile(String filename){
+        return new File(getFilePath(filename));
     }
 
     public static File createOrGetFile(String filename) {

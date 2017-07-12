@@ -39,6 +39,16 @@ public class Sound extends SugarRecord {
         this.hash = hash;
     }
 
+    public int[] getArrayHash() {
+        String[] hashSplit = this.hash.split(" ");
+
+        int[] arrayHash = new int[hashSplit.length];
+        for(int i = 0; i < hashSplit.length; i++){
+            arrayHash[i] = Integer.parseInt(hashSplit[i]);
+        }
+
+        return arrayHash;
+    }
 
     public String getName() {
         return name;
@@ -67,6 +77,11 @@ public class Sound extends SugarRecord {
 
     @Override
     public boolean equals(Object o) {
+
+        if(!Sound.class.isInstance(o)){
+            return  false;
+        }
+
         Sound a = (Sound) o;
         boolean hash = a.getHash().equals(getHash());
         boolean name = a.getName().equals(getName());

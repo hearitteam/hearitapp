@@ -3,11 +3,9 @@ package everis.com.hearit.sound;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.List;
 
-import everis.com.hearit.RecordSoundActivity;
 import everis.com.hearit.utils.HiDBUtils;
 import everis.com.hearit.utils.HiUtils;
 
@@ -17,88 +15,32 @@ import everis.com.hearit.utils.HiUtils;
 
 public class HiAlgorithm {
 
-    private float freqRes = HiSoundParams.RECORDER_SAMPLERATE / HiSoundParams.CHUNK_SIZE;
-    private int[] RANGE;
+    private BufferedWriter writerHash;
+    private BufferedWriter writerAlgorithm;
 
-    private BufferedWriter writer = null;
-    private BufferedWriter writer2 = null;
-    private BufferedWriter writer3 = null;
+    public List<String> transformSound(String filename, ArrayList<Short> audio) {
 
-    private double[] highscores;
-    private int[] recordPoints;
-    private String filename;
-    private int nWindows;
-    private Complex[][] matrix;
+        List<String> soundHash = new ArrayList<>();
 
-    public static String rightPadZeros(String str, int num) {
-        return String.format("%1$-" + num + "s", str).replace(' ', '0');
-    }
-
-    public static String getMd5(String input) {
-        String output = "";
-        try {
-            MessageDigest md;
-            md = MessageDigest.getInstance("MD5");
-
-            md.update(input.getBytes());
-            byte[] digest = md.digest();
-            StringBuffer sb = new StringBuffer();
-            for (byte b : digest) {
-                sb.append(Integer.toHexString(b & 0xff));
-            }
-            output = sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-        }
-        return output;
-    }
-
-    private void initAlgorithm() {
-        //TODO: consider linear vs log
-        RANGE = HiAlgorithmUtils.generateLogSpace(HiSoundParams.LOWER_LIMIT, HiSoundParams.UPPER_LIMIT, HiSoundParams.BINS);
-
-        highscores = new double[RANGE.length];
-        recordPoints = new int[RANGE.length];
-
-        try {
-            writer = new BufferedWriter(new FileWriter(HiUtils.createOrGetFile(filename + "_algorithm_hash", "txt")));
-            writer2 = new BufferedWriter(new FileWriter(HiUtils.createOrGetFile(filename + "_algorithm", "txt")));
-            writer3 = new BufferedWriter(new FileWriter(HiUtils.createOrGetFile(filename + "_time", "txt")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        //HiUtils.log("process time: ", "" + HiSharedPreferences.getProcessTime(act, Calendar.getInstance().getTimeInMillis()));
-    }
-
-    public void transformSound(RecordSoundActivity act, String filename, ArrayList<Short> audio) {
-
-        this.filename = filename;
-
-        initAlgorithm();
-
-        for (short b : audio) {
-            try {
-                writer3.write(b + "\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            writer3.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        int[] recordPoints = new int[HiSoundParams.RANGE.length];
+        double[] highScores = new double[HiSoundParams.RANGE.length];
 
         int totalSize = audio.size();
-        HiUtils.log("HiAlgorithm", "totalSize: " + totalSize);
-
-        nWindows = totalSize / HiSoundParams.CHUNK_SIZE;
+        int nWindows = totalSize / HiSoundParams.CHUNK_SIZE;
 
         //When turning into frequency domain we'll need complex numbers:
-        matrix = new Complex[nWindows][];
+        Complex[][] matrix = new Complex[nWindows][];
+
+        initWriterHash(filename);
+        initWriterAlgorithm(filename);
+
+        writeTime(audio, filename);
+
+        //HiUtils.log("HiAlgorithm", "totalSize: " + totalSize);
 
         //For all the chunks:
         for (int w = 0; w < nWindows; w++) {
+
             Complex[] complex = new Complex[HiSoundParams.CHUNK_SIZE];
             for (int i = 0; i < HiSoundParams.CHUNK_SIZE; i++) {
                 //Put the time domain data into a complex number with imaginary part as 0:
@@ -106,15 +48,10 @@ public class HiAlgorithm {
             }
             //Perform FFT analysis on the chunk:
             matrix[w] = FFT.fft(complex);
-        }
 
-        for (int w = 0; w < nWindows; w++) {
-            //For every line of data:
-            /*
-            for (int freq = HiSoundParams.LOWER_LIMIT; freq <= HiSoundParams.UPPER_LIMIT; freq++) {
-
+            for (int k = HiSoundParams.MIN_K; k < HiSoundParams.MAX_K; k++) {
                 //TODO: improve cast (use Round and handle first and last index??)
-                int k = (int) (freq / freqRes);
+                float freq = HiSoundParams.FREQ_RES * (k + 1);
 
                 //Get the magnitude:
                 //double mag = Math.log(matrix[w][k].abs() + 1);
@@ -123,69 +60,98 @@ public class HiAlgorithm {
                 );
 
                 //Find out which range we are in:
-                int bin = HiAlgorithmUtils.getIndex(RANGE, freq);
+                int bin = HiAlgorithmUtils.getIndex(HiSoundParams.RANGE, freq);
 
                 //Save the highest magnitude and corresponding frequency:
-                if (mag > highscores[bin]) {
-                    HiUtils.log("Saved highscore", "mag: " + mag + " freq: " + freq);
-                    highscores[bin] = mag;
-                    recordPoints[bin] = freq;
-                }
-            }
-            */
-
-
-            //For every line of data:
-
-            for (int k = (int) (HiSoundParams.LOWER_LIMIT / freqRes); k < (int) (HiSoundParams.UPPER_LIMIT / freqRes); k++) {
-                //TODO: improve cast (use Round and handle first and last index??)
-                float freq = freqRes * (k + 1);
-
-                //Get the magnitude:
-                //double mag = Math.log(matrix[w][k].abs() + 1);
-                double mag = Math.sqrt(
-                        (matrix[w][k].re() * matrix[w][k].re()) + (matrix[w][k].im() * matrix[w][k].im())
-                );
-
-                //Find out which range we are in:
-                int bin = HiAlgorithmUtils.getIndex(RANGE, freq);
-
-                //Save the highest magnitude and corresponding frequency:
-                if (mag > highscores[bin]) {
-                    HiUtils.log("Saved highscore", "mag: " + mag + " freq: " + freq);
-                    highscores[bin] = mag;
+                if (mag > highScores[bin]) {
+                    //HiUtils.log("Saved highscore", "mag: " + mag + " freq: " + freq);
+                    highScores[bin] = mag;
                     recordPoints[bin] = (int) freq;
                 }
             }
 
-            //Write the points:
-            if (writer != null) {
+            String hash = HiAlgorithmUtils.getHash(HiSoundParams.RANGE, recordPoints);
+            soundHash.add(hash);
+
+            writeHash(hash);
+            writeAlgorithm(recordPoints);
+        }
+
+        closeWriterHash();
+        closeWriterAlgorithm();
+
+        return soundHash;
+    }
+
+    private void writeTime(ArrayList<Short> audio, String filename) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(HiUtils.createOrGetFile(filename + "_time", "txt")));
+
+            for (short b : audio) {
                 try {
-                    String hash = HiAlgorithmUtils.getHash(RANGE, recordPoints);
-                    writer.write(hash);
-
-                    for (int j = 0; j < (RANGE.length - 1); j++) {
-                        writer2.write(Integer.toString(recordPoints[j]) + "\t");
-                    }
-                    writer.newLine();
-                    writer2.newLine();
-
-                    HiDBUtils.saveHashAndSound(hash, filename, 0);
-
+                    writer.write(b + "\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        }
 
-        try {
             writer.close();
-            writer2.close();
-            HiUtils.log("HiAlgorithm", "END");
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    private void initWriterHash(String filename) {
+        try {
+            writerHash = new BufferedWriter(new FileWriter(HiUtils.createOrGetFile(filename + "_algorithm_hash", "txt")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeHash(String hash) {
+
+        try {
+            writerHash.write(hash);
+            writerHash.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void closeWriterHash() {
+        try {
+            writerHash.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initWriterAlgorithm(String filename) {
+        try {
+            writerAlgorithm = new BufferedWriter(new FileWriter(HiUtils.createOrGetFile(filename + "_algorithm", "txt")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeAlgorithm(int[] recordPoints){
+        try {
+            for (int j = 0; j < (HiSoundParams.RANGE.length - 1); j++) {
+                writerAlgorithm.write(Integer.toString(recordPoints[j]) + "\t");
+            }
+            writerAlgorithm.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void closeWriterAlgorithm() {
+        try {
+            writerAlgorithm.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import everis.com.hearit.sound.HiAlgorithm;
 import everis.com.hearit.sound.HiRecorderThread;
@@ -88,7 +89,7 @@ public class RecordSoundActivity extends AppCompatActivity implements HiRecorder
             }
             record_sound.setText("Stop recording");
 
-            HiUtils.log("HiAlgorithm", "Start execution");
+            //HiUtils.log("HiAlgorithm", "Start execution");
             //HiSharedPreferences.setSP_TIME_PROCESS_START(this, Calendar.getInstance().getTimeInMillis());
 
             recorderThread = new HiRecorderThread(this);
@@ -135,6 +136,10 @@ public class RecordSoundActivity extends AppCompatActivity implements HiRecorder
 
     @Override public void onFinishRecording(ArrayList<Short> audio) {
         HiAlgorithm algorithm = new HiAlgorithm();
-        algorithm.transformSound(this, fileName, audio);
+        List<String> soundHash = algorithm.transformSound(fileName, audio);
+
+        for(String hash: soundHash){
+            HiDBUtils.saveHashAndSound(hash, fileName, 0);
+        }
     }
 }

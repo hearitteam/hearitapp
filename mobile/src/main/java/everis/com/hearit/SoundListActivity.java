@@ -97,4 +97,8 @@ public class SoundListActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void RefreshAdapter() {
+        listview.setAdapter(new SoundAdapter(this, HiDBUtils.getSoundViewListFromDB()));
+    }
 }

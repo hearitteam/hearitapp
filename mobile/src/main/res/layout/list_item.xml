@@ -9,29 +9,41 @@
     android:padding="12dp">
 
     <TextView
+        android:id="@+id/importance"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_centerVertical="true"
+        android:background="@drawable/checkbox_blank_circle"/>
+
+    <TextView
         android:id="@+id/sound_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/importance"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:text="Sound name"
         android:textAppearance="@android:style/TextAppearance.Medium"
         android:textColor="@android:color/black"/>
+
+
+    <ImageView
+        android:id="@+id/delete_sound_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/delete"/>
 
     <ImageView
         android:id="@+id/sound_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:src="@drawable/speaker"/>
-
-    <TextView
-        android:id="@+id/importance"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
         android:layout_centerVertical="true"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_toLeftOf="@id/sound_icon"
-        android:background="@drawable/round_green"/>
+        android:layout_toLeftOf="@id/delete_sound_icon"
+        android:src="@drawable/play_circle_outline"/>
+
+
 
 </RelativeLayout>

@@ -26,14 +26,10 @@ public class MatchedActivity extends AppCompatActivity {
 
         soundNameView.setText(soundName);
 
+        MainActivity.restartListenerService = true;
 
         // Restart Service
         //startService(new Intent(getBaseContext(), MainService.class));
-    }
-
-    @Override public void onBackPressed() {
-        MainActivity.restartListenerService = true;
-        super.onBackPressed();
     }
 
     @Override protected void onDestroy() {

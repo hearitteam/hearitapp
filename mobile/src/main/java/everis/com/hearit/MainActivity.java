@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else if(restartListenerService) {
             setService();
+            restartListenerService = false;
         }
         else if(listen_sound != null && listen_sound.getAnimation() != null){
             listen_sound.clearAnimation();

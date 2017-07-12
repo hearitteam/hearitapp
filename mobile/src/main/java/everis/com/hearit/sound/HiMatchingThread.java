@@ -14,48 +14,48 @@ import everis.com.hearit.utils.HiUtils;
 
 public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
 
-    private boolean isRecording = false;
     private ArrayList<Short> audio;
-    private AudioRecord audioRecord;
     //TODO change MAP type (Anna)
     //private Map<Sound, Pair<Integer, Integer>> matchedMap;
-    private Map<Sound, Integer> matchedMap;
-    private Sound matchedSound;
-
+    private Map<String, Integer> matchedMap;
+    private String matchedSound;
     private HiMatchingCallback callback;
+    private List<Sound> allSound;
+    private boolean isRecording = false;
 
-
-    public HiMatchingThread(HiMatchingCallback callback) {
+    public HiMatchingThread(HiMatchingCallback callback, List<Sound> allSound) {
         this.callback = callback;
         this.audio = new ArrayList<>();
         this.matchedMap = new HashMap<>();
+        this.allSound = allSound;
     }
 
     @Override
     protected Void doInBackground(Void... params) {
 
-        int bufferSize = HiSoundParams.CHUNK_SIZE;
-        short[] buffer = new short[bufferSize];
+        int bufferSize;
+        short[] buffer;
         double sum;
         double amplitude;
-        List<Sound> matchedSounds;
+        int bufferReadResult;
+        int mismatched = 0;
+        List<String> matchedSounds;
         HiMatchingAlgorithm hiMatchingAlgorithm = new HiMatchingAlgorithm();
 
         isRecording = true;
 
         try {
-            //int bufferSize = AudioRecord.getMinBufferSize(HiSoundParams.RECORDER_SAMPLERATE,
-            //        HiSoundParams.RECORDER_CHANNELS, HiSoundParams.RECORDER_AUDIO_ENCODING);
 
+            bufferSize = HiSoundParams.CHUNK_SIZE;//AudioRecord.getMinBufferSize(HiSoundParams.RECORDER_SAMPLERATE, HiSoundParams.RECORDER_CHANNELS, HiSoundParams.RECORDER_AUDIO_ENCODING);
 
-            audioRecord = new AudioRecord(
+            AudioRecord audioRecord = new AudioRecord(
                     MediaRecorder.AudioSource.MIC,
                     HiSoundParams.RECORDER_SAMPLERATE,
                     HiSoundParams.RECORDER_CHANNELS,
                     HiSoundParams.RECORDER_AUDIO_ENCODING,
                     bufferSize);
 
-            hiMatchingAlgorithm.initAlgorithm();
+            buffer = new short[bufferSize];
 
             audioRecord.startRecording();
 
@@ -63,31 +63,31 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
 
                 sum = 0;
                 amplitude = 0;
+                audio = new ArrayList<>();
 
-                audio.clear();
-
-                int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
-
-                for (int i = 0; i < bufferReadResult; i++) {
-                    sum += buffer[i] * buffer[i];
-                }
+                bufferReadResult = audioRecord.read(buffer, 0, bufferSize);
 
                 if (bufferReadResult > 0) {
-                    amplitude = sum / bufferReadResult;
-                    // HiUtils.log("matching process", "sqrt amp: " + (int) Math.sqrt(amplitude));
-                }
-
-                if ((int) Math.sqrt(amplitude) > HiSoundParams.RECORDER_AMP_THRESHOLD) {
                     for (int i = 0; i < bufferReadResult; i++) {
-                        audio.add(buffer[i]);
-                        //HiUtils.log("recoding process", "byte read: " + buffer[i] + "");
+                        sum += buffer[i] * buffer[i];
                     }
 
-                    matchedSounds = hiMatchingAlgorithm.matchChunk(audio);
+                    amplitude = (int) Math.sqrt(sum / bufferReadResult);
+                }
+
+                if (amplitude > HiSoundParams.RECORDER_AMP_THRESHOLD) {
+
+                    for (int i = 0; i < bufferReadResult; i++) {
+                        audio.add(buffer[i]);
+                    }
+
+                    matchedSounds = hiMatchingAlgorithm.matchChunk(audio, this.allSound);
 
                     if (!matchedSounds.isEmpty()) {
-                        //TODO: manage sound map outside "for" loop for "best hit" (Anna)
-                        for (Sound s : matchedSounds) {
+
+                        Integer maxMatched = 0;
+
+                        for (String s : matchedSounds) {
 
                             Integer count = matchedMap.get(s);
 
@@ -98,64 +98,52 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
                             }
 
                             matchedMap.put(s, count);
-                            if (count == HiSoundParams.MATCHED_HITS_THRESHOLD) {
+
+                            if(count >= HiSoundParams.MATCHED_HITS_THRESHOLD && count > maxMatched){
+                                maxMatched = count;
                                 matchedSound = s;
                             }
-
-                            /*
-                            for (Map.Entry<Sound, Integer> m : matchedMap.entrySet()) {
-                                if (s.getHash() == m.getKey().getHash()) {
-                                    Integer count = m.getValue();
-                                    if (count == null) {
-                                        matchedMap.put(s, 1);
-                                        if (1 == HiSoundParams.MATCHED_HITS_THRESHOLD) {
-                                            matchedSound = s;
-                                        }
-                                    } else {
-                                        matchedMap.put(s, count + 1);
-                                        if (count + 1 == HiSoundParams.MATCHED_HITS_THRESHOLD) {
-                                            matchedSound = s;
-                                        }
-                                    }
-                                }
-                            }
-                            */
                         }
+
+                        if(matchedSound != null){
+                            isRecording = false;
+                        }
+
                     } else {
-                        //TODO: Manage miss counter
-                        //matchedMap.clear();
-                        matchedSound = null;
+                        mismatched++;
+
+                        if(mismatched >= HiSoundParams.MISSING_BEFORE_RESET){
+                            mismatched = 0;
+                            matchedMap = new HashMap<>();
+                            HiUtils.log("HiMatchingAlgorithm", "clear map");
+                        }
                     }
                 }
-
-                if (matchedSound != null) {
-                    isRecording = false;
-                    callback.onSoundMatched(matchedSound);
-                }
             }
-        } catch (Throwable t) {
-            HiUtils.log("matching process", "Recording Failed");
+
+            audioRecord.stop();
+            audioRecord.release();
+
+            if (matchedSound != null) {
+                callback.onSoundMatched(matchedSound);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         return null;
     }
 
-
+    @Override
     protected void onPostExecute(Void result) {
         HiUtils.log("matching process", "stop");
     }
 
-    public void startRecording() {
-        isRecording = true;
-    }
-
     public void stopRecording() {
         isRecording = false;
-        audioRecord.stop();
-        audioRecord.release();
-        audioRecord = null;
     }
 
     public interface HiMatchingCallback {
-        void onSoundMatched(Sound soundMatched);
+        void onSoundMatched(String soundNameMatched);
     }
 }

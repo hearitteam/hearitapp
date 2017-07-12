@@ -22,23 +22,11 @@ public class HiAlgorithmUtils {
         }
         RANGE[logBins] = HiSoundParams.UPPER_LIMIT;
 
-        for (int r : RANGE) {
-            HiUtils.log("HiAlgorithm", "Bins: " + r);
-        }
+        //for (int r : RANGE) {
+            //HiUtils.log("HiAlgorithm", "Bins: " + r);
+        //}
 
         return RANGE;
-    }
-
-    //Find out in which BIN
-    public static int getIndex(int[] RANGE, int freq) {
-        int i = 0;
-        while (i < RANGE.length - 1) {
-            if (freq >= RANGE[i] && freq < RANGE[i + 1]) {
-                return i;
-            }
-            i++;
-        }
-        return i;
     }
 
     //Find out in which BIN
@@ -56,20 +44,18 @@ public class HiAlgorithmUtils {
     public static String getHash(int[] RANGE, int[] recordPoints) {
 
         String hash = "";
-        String hashNoCorrection = "";
-        int correction = 0;
+        //String hashNoCorrection = "";
+        int correction;
+
         for (int i = recordPoints.length - 1; i >= 0; i--) {
             correction = recordPoints[i] % (RANGE[i] / HiSoundParams.FUZ_FACTOR);
-            //correction = recordPoints[i] % FUZ_FACTOR;
             hash += String.valueOf((recordPoints[i] - correction) + " ");
-            hashNoCorrection += String.valueOf(recordPoints[i] + " ");
+            //hashNoCorrection += String.valueOf(recordPoints[i] + " ");
         }
 
-        HiUtils.log("HiAlgorithm", "hash: " + hash);
-        HiUtils.log("HiAlgorithm", "hashNoCorrection: " + hashNoCorrection);
+        //HiUtils.log("HiAlgorithm", "hash: " + hash);
+        //HiUtils.log("HiAlgorithm", "hashNoCorrection: " + hashNoCorrection);
 
-        //return (p4 - (p4 % FUZ_FACTOR)) * 100000000 + (p3 - (p3 % FUZ_FACTOR)) * 100000 + (p2 - (p2 % FUZ_FACTOR)) * 100 + (p1 - (p1 % FUZ_FACTOR));
-        //return getMd5(hash);
         return hash;
     }
 }

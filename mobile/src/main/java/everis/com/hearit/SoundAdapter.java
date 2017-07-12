@@ -1,8 +1,11 @@
 package everis.com.hearit;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +13,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -20,6 +25,7 @@ import java.util.List;
 
 import everis.com.hearit.model.SoundView;
 import everis.com.hearit.sound.HiSoundParams;
+import everis.com.hearit.utils.HiDBUtils;
 import everis.com.hearit.utils.HiUtils;
 
 /**
@@ -47,7 +53,7 @@ public class SoundAdapter extends ArrayAdapter<SoundView> {
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        View rowView = inflater.inflate(R.layout.list_item, parent, false);
+        final View rowView = inflater.inflate(R.layout.list_item, parent, false);
 
         TextView textView = (TextView) rowView.findViewById(R.id.sound_name);
         textView.setText(list.get(position).getName());
@@ -61,16 +67,22 @@ public class SoundAdapter extends ArrayAdapter<SoundView> {
         else if (list.get(position).getImportance() == 2)
             drawable = R.drawable.round_red;
 
-        importance.setBackground(ctx.getResources().getDrawable(drawable));
+        importance.setBackground(ctx.getDrawable(drawable));
 
         ImageView sound_icon = (ImageView) rowView.findViewById(R.id.sound_icon);
         sound_icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                new PlayRecording(rowView, position).execute(list.get(position).getName());
+            }
+        });
 
-                playRecording(list.get(position).getName());
 
-                //TODO: REPRODUCE SOUND ?
+        ImageView delete_sound_icon = (ImageView) rowView.findViewById(R.id.delete_sound_icon);
+        delete_sound_icon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteItem(list.get(position).getName());
             }
         });
 
@@ -95,30 +107,128 @@ public class SoundAdapter extends ArrayAdapter<SoundView> {
         this.notifyDataSetChanged();
     }*/
 
-    private void playRecording(String fileName) {
+    private void deleteItem(final String soundName) {
 
-        byte[] audioData = null;
+        AlertDialog.Builder alert = new AlertDialog.Builder(this.ctx);
+        alert.setTitle("Delete");
+        alert.setMessage("Are you sure you want to delete?");
+        alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                HiDBUtils.deleteSound(soundName);
+                HiUtils.deleteAudioFile(soundName);
+                ((SoundListActivity) ctx).RefreshAdapter();
+                dialog.dismiss();
+            }
+        });
 
-        fileName = HiUtils.getFilePath(fileName);
+        alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
 
-        try {
-            InputStream inputStream = new FileInputStream(fileName);
+        alert.show();
+    }
 
-            int minBufferSize = AudioTrack.getMinBufferSize(HiSoundParams.RECORDER_SAMPLERATE, HiSoundParams.PLAYER_CHANNELS, HiSoundParams.RECORDER_AUDIO_ENCODING);
-            audioData = new byte[minBufferSize];
+    private class PlayRecording extends AsyncTask<String, Void, Void> {
 
-            AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, HiSoundParams.RECORDER_SAMPLERATE,HiSoundParams.PLAYER_CHANNELS, HiSoundParams.RECORDER_AUDIO_ENCODING,minBufferSize, AudioTrack.MODE_STREAM);
-            audioTrack.play();
-            int i= 0;
+        private View rowView;
+        private int position;
+        private AudioTrack audioTrack;
 
-            while((i = inputStream.read(audioData)) != -1) {
-                audioTrack.write(audioData,0,i);
+        public PlayRecording(View rowView, int position){
+            this.rowView = rowView;
+            this.position = position;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            File file = HiUtils.GetFile(params[0]);
+            int musicLength = (int) (file.length() / 2);
+            try {
+                //size & length of the file
+                short[] music = new short[musicLength];
+
+                //  Create a DataInputStream to read the audio data from the saved file
+                InputStream is = new FileInputStream(file);
+
+                //  Read the file into the "music" array
+                BufferedInputStream bis = new BufferedInputStream(is);
+                DataInputStream dis = new DataInputStream(bis);
+
+                // Read the file into the music array.
+                int i = 0;
+                while (dis.available() > 0) {
+                    music[i] = dis.readShort();
+                    i++;
+                }
+
+                //  Close the input stream
+                dis.close();
+
+                audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, HiSoundParams.RECORDER_SAMPLERATE, HiSoundParams.PLAYER_CHANNELS, HiSoundParams.RECORDER_AUDIO_ENCODING, music.length, AudioTrack.MODE_STREAM);
+                audioTrack.play();
+                audioTrack.write(music, 0, musicLength);
+                audioTrack.setNotificationMarkerPosition(musicLength);
+                audioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
+
+                    @Override
+                    public void onMarkerReached(AudioTrack track) {
+                        try {
+                            audioTrack.stop();
+                        } catch (Exception ex){
+                            ex.printStackTrace();
+                        }
+                        setPlayButton();
+                    }
+
+                    @Override
+                    public void onPeriodicNotification(AudioTrack track) {
+                    }
+                });
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
 
-        } catch(FileNotFoundException fe) {
-            HiUtils.log("Play sound", "File not found");
-        } catch(IOException io) {
-            HiUtils.log("Play sound","IO Exception");
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            setStopButton();
+        }
+
+        private void setStopButton(){
+            ImageView sound_icon = (ImageView) rowView.findViewById(R.id.sound_icon);
+            sound_icon.setImageDrawable(ctx.getDrawable(R.drawable.stop_circle_outline));
+
+            sound_icon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        audioTrack.stop();
+                    } catch (Exception ex){
+                        ex.printStackTrace();
+                    }
+                    setPlayButton();
+                }
+            });
+        }
+
+        private void setPlayButton(){
+            ImageView sound_icon = (ImageView) rowView.findViewById(R.id.sound_icon);
+            sound_icon.setImageDrawable(ctx.getDrawable(R.drawable.play_circle_outline));
+
+            sound_icon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new PlayRecording(rowView, position).execute(list.get(position).getName());
+                }
+            });
         }
     }
 }

@@ -5,8 +5,11 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.widget.Toast;
 
+import java.util.List;
+
 import everis.com.hearit.model.Sound;
 import everis.com.hearit.sound.HiMatchingThread;
+import everis.com.hearit.utils.HiDBUtils;
 
 public class MainService extends Service implements HiMatchingThread.HiMatchingCallback {
 
@@ -22,17 +25,20 @@ public class MainService extends Service implements HiMatchingThread.HiMatchingC
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        List<Sound> allSound = HiDBUtils.getSoundListFromDB();
+
         Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
 
-        hiMatchingThread = new HiMatchingThread(this);
+        hiMatchingThread = new HiMatchingThread(this, allSound);
         hiMatchingThread.execute();
 
         return START_STICKY;
     }
 
-    public void sendMatchedBroadcast(Sound matchedSound) {
+    public void sendMatchedBroadcast(String soundNameMatched) {
         Intent i = new Intent("everis.com.hearit.matchedSound");
-        i.putExtra("soundName", matchedSound.getName());
+        i.putExtra("soundName", soundNameMatched);
         sendBroadcast(i);
         stopSelf();
     }
@@ -45,7 +51,7 @@ public class MainService extends Service implements HiMatchingThread.HiMatchingC
         hiMatchingThread.cancel(true);
     }
 
-    @Override public void onSoundMatched(Sound soundMatched) {
-        sendMatchedBroadcast(soundMatched);
+    @Override public void onSoundMatched(String soundNameMatched) {
+        sendMatchedBroadcast(soundNameMatched);
     }
 }

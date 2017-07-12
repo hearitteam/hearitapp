@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import everis.com.hearit.model.Sound;
-import everis.com.hearit.utils.HiDBUtils;
 import everis.com.hearit.utils.HiUtils;
 
 /**
@@ -13,93 +12,87 @@ import everis.com.hearit.utils.HiUtils;
 
 public class HiMatchingAlgorithm {
 
-    private float freqRes = HiSoundParams.RECORDER_SAMPLERATE / HiSoundParams.CHUNK_SIZE;
-    private int[] RANGE;
-    private double[] highscores;
-    private int[] recordPoints;
+    public List<String> matchChunk(ArrayList<Short> audio, List<Sound> allSound) {
 
-    private Complex[] matrix;
+        String hash = CalculateHash(audio);
 
-    public void initAlgorithm() {
-        //TODO: consider linear vs log
-        RANGE = HiAlgorithmUtils.generateLogSpace(HiSoundParams.LOWER_LIMIT, HiSoundParams.UPPER_LIMIT, HiSoundParams.BINS);
+        //HiUtils.log("HiMatchingAlgorithm", "try to match: " + hash);
 
-        highscores = new double[RANGE.length];
-        recordPoints = new int[RANGE.length];
-
-        for (Sound s : HiDBUtils.getSoundListFromDB()) {
-            HiUtils.log("HiMatchingAlgorithm", "existing hashes: " + s.getHash() + " - " + s.getName());
-        }
+        return PartialMatched(allSound, hash);
     }
 
-    public List<Sound> matchChunk(ArrayList<Short> audio) {
+    private String CalculateHash(ArrayList<Short> audio) {
 
-        for (short s : audio) {
-//            HiUtils.log("HiMatchingAlgorithm", "audio: " + s);
-        }
+        int[] recordPoints = new int[HiSoundParams.RANGE.length];
+        double[] highScores = new double[HiSoundParams.RANGE.length];
+
+        Complex[] matrix;
+        Complex[] complex = new Complex[HiSoundParams.CHUNK_SIZE];
 
         //For all the chunks:
-        Complex[] complex = new Complex[HiSoundParams.CHUNK_SIZE];
         for (int i = 0; i < HiSoundParams.CHUNK_SIZE; i++) {
             //Put the time domain data into a complex number with imaginary part as 0:
             complex[i] = new Complex(audio.get(i), 0);
         }
+
         //Perform FFT analysis on the chunk:
         matrix = FFT.fft(complex);
 
-        /*
-        for (int freq = HiSoundParams.LOWER_LIMIT; freq <= HiSoundParams.UPPER_LIMIT; freq++) {
-
+        for (int k = HiSoundParams.MIN_K; k < HiSoundParams.MAX_K; k++) {
             //TODO: improve cast (use Round and handle first and last index??)
-            int k = (int) (freq / freqRes);
+            float freq = HiSoundParams.FREQ_RES * (k + 1);
 
-            //Get the magnitude:
-            double mag = Math.log(matrix[k].abs() + 1);
-
-            //Find out which range we are in:
-            int bin = HiAlgorithmUtils.getIndex(RANGE, freq);
-
-            //Save the highest magnitude and corresponding frequency:
-            if (mag > highscores[bin]) {
-                highscores[bin] = mag;
-                recordPoints[bin] = freq;
-            }
-        }
-        */
-
-
-        for (int k = (int) (HiSoundParams.LOWER_LIMIT / freqRes); k < (int) (HiSoundParams.UPPER_LIMIT / freqRes); k++) {
-            //TODO: improve cast (use Round and handle first and last index??)
-            float freq = freqRes * (k + 1);
-
-            //Get the magnitude:
-            //double mag = Math.log(matrix[w][k].abs() + 1);
             double mag = Math.sqrt(
                     (matrix[k].re() * matrix[k].re()) + (matrix[k].im() * matrix[k].im())
             );
 
             //Find out which range we are in:
-            int bin = HiAlgorithmUtils.getIndex(RANGE, freq);
+            int bin = HiAlgorithmUtils.getIndex(HiSoundParams.RANGE, freq);
 
             //Save the highest magnitude and corresponding frequency:
-            if (mag > highscores[bin]) {
-                HiUtils.log("Saved highscore", "mag: " + mag + " freq: " + freq);
-                highscores[bin] = mag;
+            if (mag > highScores[bin]) {
+                //HiUtils.log("Saved highscore", "mag: " + mag + " freq: " + freq);
+                highScores[bin] = mag;
                 recordPoints[bin] = (int) freq;
             }
         }
 
-        String hash = HiAlgorithmUtils.getHash(RANGE, recordPoints);
-        //hash = "10000 6680 6258 2990 1990 1330 890 590 546 ";
+        return HiAlgorithmUtils.getHash(HiSoundParams.RANGE, recordPoints);
+    }
 
-        HiUtils.log("HiMatchingAlgorithm", "try to match: " + hash);
+    private List<String> PartialMatched(List<Sound> allSound, String hash) {
 
-        List<Sound> matchedSounds = HiDBUtils.getSoundsByHash(hash);
+        List<String> soundMatched = new ArrayList<>();
 
-        if (!matchedSounds.isEmpty()) {
-            HiUtils.log("HiMatchingAlgorithm", "MATCHEEEEEEDDDDD");
+        String[] hashSplit = hash.split(" ");
+
+        int[] arrayHash = new int[hashSplit.length];
+        for (int i = 0; i < hashSplit.length; i++) {
+            arrayHash[i] = Integer.parseInt(hashSplit[i]);
         }
 
-        return matchedSounds;
+        for (int i = 0; i < allSound.size(); i++) {
+
+            int countEquals = 0;
+            int[] soundArrayHash = allSound.get(i).getArrayHash();
+            Sound sound = allSound.get(i);
+
+            for (int j = 0; j < soundArrayHash.length; j++) {
+                if (arrayHash[j] == soundArrayHash[j]) {
+                    countEquals++;
+                }
+            }
+
+            int percentage = ((countEquals * 100) / soundArrayHash.length);
+
+            if (percentage >= HiSoundParams.PERCENTAGE_MATCHED) {
+                //if (!soundMatched.contains(sound)) {
+                soundMatched.add(sound.getName());
+                //}
+                HiUtils.log("HiMatchingAlgorithm", "matched: " + hash + "   with: " + sound.getName());
+            }
+        }
+
+        return soundMatched;
     }
 }

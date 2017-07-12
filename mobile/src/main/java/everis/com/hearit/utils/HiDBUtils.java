@@ -42,11 +42,21 @@ public class HiDBUtils {
         SoundView.deleteAll(SoundView.class);
     }
 
+    public static void deleteSound(String soundName) {
+        Sound.deleteAll(Sound.class, "name = ?", soundName);
+        SoundView.deleteAll(SoundView.class, "name = ?", soundName);
+    }
+
     public static void saveHashAndSound(String hash, String name, int importance) {
         saveSoundIntoDB(hash, name, importance);
     }
 
     public static List<Sound> getSoundsByHash(String hash) {
-        return Sound.find(Sound.class, "hash = ?", hash);
+        try {
+            return Sound.find(Sound.class, "hash = ?", hash);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }
