@@ -29,9 +29,9 @@ public class MainService extends Service implements HiMatchingThread.HiMatchingC
 
         List<Sound> allSound = HiDBUtils.getSoundListFromDB();
 
-        for (Sound s : allSound) {
+        /*for (Sound s : allSound) {
             HiUtils.log("HiMatchingAlgorithm", "Existing: " + s.getHash() + " -" + s.getName());
-        }
+        }*/
 
         Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
 

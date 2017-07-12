@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import everis.com.hearit.utils.HiDBUtils;
 import everis.com.hearit.utils.HiUtils;
 
 /**
@@ -62,10 +61,11 @@ public class HiAlgorithm {
                 //Find out which range we are in:
                 int bin = HiAlgorithmUtils.getIndex(HiSoundParams.RANGE, freq);
 
-                //Save the highest magnitude and corresponding frequency:
-                if (mag > highScores[bin]) {
+                double power = mag * mag;
+                //Save the highest power and corresponding frequency:
+                if (power > highScores[bin]) {
                     //HiUtils.log("Saved highscore", "mag: " + mag + " freq: " + freq);
-                    highScores[bin] = mag;
+                    highScores[bin] = power;
                     recordPoints[bin] = (int) freq;
                 }
             }
@@ -136,7 +136,7 @@ public class HiAlgorithm {
         }
     }
 
-    private void writeAlgorithm(int[] recordPoints){
+    private void writeAlgorithm(int[] recordPoints) {
         try {
             for (int j = 0; j < (HiSoundParams.RANGE.length - 1); j++) {
                 writerAlgorithm.write(Integer.toString(recordPoints[j]) + "\t");

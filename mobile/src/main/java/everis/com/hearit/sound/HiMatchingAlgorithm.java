@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import everis.com.hearit.model.Sound;
-import everis.com.hearit.utils.HiUtils;
 
 /**
  * Created by mauriziomento on 16/05/17.
@@ -16,7 +15,7 @@ public class HiMatchingAlgorithm {
 
         String hash = CalculateHash(audio);
 
-        HiUtils.log("HiMatchingAlgorithm", "try to match: " + hash);
+        //HiUtils.log("HiMatchingAlgorithm", "try to match: " + hash);
 
         return PartialMatched(allSound, hash);
     }
@@ -49,10 +48,11 @@ public class HiMatchingAlgorithm {
             //Find out which range we are in:
             int bin = HiAlgorithmUtils.getIndex(HiSoundParams.RANGE, freq);
 
-            //Save the highest magnitude and corresponding frequency:
-            if (mag > highScores[bin]) {
+            double power = mag * mag;
+            //Save the highest power and corresponding frequency:
+            if (power > highScores[bin]) {
                 //HiUtils.log("Saved highscore", "mag: " + mag + " freq: " + freq);
-                highScores[bin] = mag;
+                highScores[bin] = power;
                 recordPoints[bin] = (int) freq;
             }
         }
@@ -90,7 +90,7 @@ public class HiMatchingAlgorithm {
                 if (!soundMatched.contains(soundName)) {
                     soundMatched.add(soundName);
                 }
-                HiUtils.log("HiMatchingAlgorithm", "matched: " + hash + "   with: " + soundName);
+                // HiUtils.log("HiMatchingAlgorithm", "matched: " + hash + "   with: " + soundName);
             }
         }
 

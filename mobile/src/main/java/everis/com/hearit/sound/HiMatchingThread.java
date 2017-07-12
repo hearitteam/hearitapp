@@ -115,7 +115,7 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
                         if(mismatched >= HiSoundParams.MISSING_BEFORE_RESET){
                             mismatched = 0;
                             matchedMap = new HashMap<>();
-                            HiUtils.log("HiMatchingAlgorithm", "clear map");
+                            //HiUtils.log("HiMatchingAlgorithm", "clear map");
                         }
                     }
                 }
@@ -134,10 +134,10 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
-    @Override
+    /*@Override
     protected void onPostExecute(Void result) {
         HiUtils.log("matching process", "stop");
-    }
+    }*/
 
     public void stopRecording() {
         isRecording = false;
