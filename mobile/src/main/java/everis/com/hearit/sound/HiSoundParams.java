@@ -13,7 +13,8 @@ public class HiSoundParams {
     public static int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_MONO;
     public static int PLAYER_CHANNELS = AudioFormat.CHANNEL_OUT_MONO;
     public static int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
-    public static int CHUNK_SIZE = 4096; // 512
+    public static int CHUNK_SIZE = 1024; // 512
+    public static int WINDOWS = 4096; // 512
     public static int LOWER_LIMIT = 400;
     public static int UPPER_LIMIT = 10000; // 7000
     public static int BINS = 8;

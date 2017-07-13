@@ -25,7 +25,7 @@ public class HiAlgorithm {
         double[] highScores = new double[HiSoundParams.RANGE.length];
 
         int totalSize = audio.size();
-        int nWindows = totalSize / HiSoundParams.CHUNK_SIZE;
+        int nWindows = totalSize / HiSoundParams.WINDOWS;
 
         //When turning into frequency domain we'll need complex numbers:
         Complex[][] matrix = new Complex[nWindows][];

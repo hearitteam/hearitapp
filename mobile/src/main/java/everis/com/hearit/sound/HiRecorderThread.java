@@ -40,6 +40,9 @@ public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
         double sum;
         double amplitude;
         int bufferReadResult;
+        NoiseSuppressor ns = null;
+        AutomaticGainControl agc = null;
+        AcousticEchoCanceler aec = null;
 
         isRecording = true;
 
@@ -66,20 +69,23 @@ public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
 
                 int audioSessionId = audioRecord.getAudioSessionId();
 
-                if (NoiseSuppressor.create(audioSessionId) == null) {
+                if (NoiseSuppressor.isAvailable()) {
+                    ns = NoiseSuppressor.create(audioSessionId);
+                    HiUtils.log("recording process", "NoiseSuppressor is Enabled: " + ns.getEnabled());
+                } else {
                     HiUtils.log("recording process", "NoiseSuppressor failed :(");
-                } else {
-                    HiUtils.log("recording process", "NoiseSuppressor ON");
                 }
-                if (AutomaticGainControl.create(audioSessionId) == null) {
+                if (AutomaticGainControl.isAvailable()) {
+                    agc = AutomaticGainControl.create(audioSessionId);
+                    HiUtils.log("recording process", "AutomaticGainControl is Enabled: " + agc.getEnabled());
+                } else {
                     HiUtils.log("recording process", "AutomaticGainControl failed :(");
-                } else {
-                    HiUtils.log("recording process", "AutomaticGainControl ON");
                 }
-                if (AcousticEchoCanceler.create(audioSessionId) == null) {
-                    HiUtils.log("recording process", "AcousticEchoCanceler failed :(");
+                if (AcousticEchoCanceler.isAvailable()) {
+                    aec = AcousticEchoCanceler.create(audioSessionId);
+                    HiUtils.log("recording process", "AcousticEchoCanceler is Enabled: " + aec.getEnabled());
                 } else {
-                    HiUtils.log("recording process", "AcousticEchoCanceler ON");
+                    HiUtils.log("recording process", "AcousticEchoCanceler failed :(");
                 }
             }
 
@@ -111,6 +117,18 @@ public class HiRecorderThread extends AsyncTask<String, Integer, Void> {
             audioRecord.stop();
             audioRecord.release();
             dos.close();
+
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                if (ns != null) {
+                    ns.release();
+                }
+                if (agc != null) {
+                    agc.release();
+                }
+                if (aec != null) {
+                    aec.release();
+                }
+            }
 
         } catch (Exception ex) {
             HiUtils.log("recording process", ex.getMessage());
