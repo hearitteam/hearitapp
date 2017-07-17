@@ -10,25 +10,16 @@ public class HiSound extends SugarRecord {
     private String hash;
     private String name;
 
-    private int importance;
-
     public HiSound() {
     }
 
     public HiSound(String name) {
         this.name = name;
-        this.importance = 0;
-    }
-
-    public HiSound(String name, int importance) {
-        this.name = name;
-        this.importance = importance;
     }
 
     public HiSound(String hash, String name, int importance) {
         this.hash = hash;
         this.name = name;
-        this.importance = importance;
     }
 
     public String getHash() {
@@ -56,15 +47,6 @@ public class HiSound extends SugarRecord {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-
-    public int getImportance() {
-        return importance;
-    }
-
-    public void setImportance(int importance) {
-        this.importance = importance;
     }
 
     @Override
