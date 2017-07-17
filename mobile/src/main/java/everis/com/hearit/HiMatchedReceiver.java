@@ -8,12 +8,12 @@ import android.content.Intent;
  * Created by mauriziomento on 22/05/17.
  */
 
-public class MatchedReceiver extends BroadcastReceiver {
+public class HiMatchedReceiver extends BroadcastReceiver {
     @Override public void onReceive(Context context, Intent intent) {
 
         String soundName = intent.getStringExtra("soundName");
 
-        Intent matchedActivity = new Intent(context, MatchedActivity.class);
+        Intent matchedActivity = new Intent(context, HiMatchedActivity.class);
         matchedActivity.putExtra("soundName", soundName);
         matchedActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(matchedActivity);

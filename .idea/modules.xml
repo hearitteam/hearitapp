@@ -5,7 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/hearit.iml" filepath="$PROJECT_DIR$/hearit.iml" />
       <module fileurl="file://$PROJECT_DIR$/hearitapp.iml" filepath="$PROJECT_DIR$/hearitapp.iml" />
       <module fileurl="file://$PROJECT_DIR$/mobile/mobile.iml" filepath="$PROJECT_DIR$/mobile/mobile.iml" />
-      <module fileurl="file://$PROJECT_DIR$/mobile/mobile.iml" filepath="$PROJECT_DIR$/mobile/mobile.iml" />
     </modules>
   </component>
 </project>

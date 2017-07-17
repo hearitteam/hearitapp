@@ -1,10 +1,7 @@
 package everis.com.hearit.utils;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +11,7 @@ import java.io.IOException;
  */
 public class HiUtils {
 
-    public static final String AUDIO_RECORDER_FOLDER = "HearIt/Sound";
+    public static final String AUDIO_RECORDER_FOLDER = "HearIt/HiSound";
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = "wav";
 
     public static void log(String TAG, String msg) {
@@ -51,7 +48,7 @@ public class HiUtils {
         return getFilePath(filename, AUDIO_RECORDER_FILE_EXT_WAV);
     }
 
-    public static File GetFile(String filename){
+    public static File GetFile(String filename) {
         return new File(getFilePath(filename));
     }
 

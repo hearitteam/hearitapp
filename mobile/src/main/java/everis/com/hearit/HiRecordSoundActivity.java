@@ -23,7 +23,7 @@ import everis.com.hearit.utils.HiUtils;
 /**
  * Created by mauriziomento on 24/02/16.
  */
-public class RecordSoundActivity extends AppCompatActivity implements HiRecorderThread.HiRecorderCallback {
+public class HiRecordSoundActivity extends AppCompatActivity implements HiRecorderThread.HiRecorderCallback {
 
     public String fileName;
     private Context ctx;
@@ -138,7 +138,7 @@ public class RecordSoundActivity extends AppCompatActivity implements HiRecorder
         HiAlgorithm algorithm = new HiAlgorithm();
         List<String> soundHash = algorithm.transformSound(fileName, audio);
 
-        for(String hash: soundHash){
+        for (String hash : soundHash) {
             HiDBUtils.saveHashAndSound(hash, fileName, 0);
         }
     }

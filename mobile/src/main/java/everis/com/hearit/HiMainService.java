@@ -7,16 +7,15 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import everis.com.hearit.model.Sound;
+import everis.com.hearit.model.HiSound;
 import everis.com.hearit.sound.HiMatchingThread;
 import everis.com.hearit.utils.HiDBUtils;
-import everis.com.hearit.utils.HiUtils;
 
-public class MainService extends Service implements HiMatchingThread.HiMatchingCallback {
+public class HiMainService extends Service implements HiMatchingThread.HiMatchingCallback {
 
     private HiMatchingThread hiMatchingThread;
 
-    public MainService() {
+    public HiMainService() {
     }
 
     @Override
@@ -27,9 +26,9 @@ public class MainService extends Service implements HiMatchingThread.HiMatchingC
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        List<Sound> allSound = HiDBUtils.getSoundListFromDB();
+        List<HiSound> allSound = HiDBUtils.getSoundListFromDB();
 
-        /*for (Sound s : allSound) {
+        /*for (HiSound s : allSound) {
             HiUtils.log("HiMatchingAlgorithm", "Existing: " + s.getHash() + " -" + s.getName());
         }*/
 
@@ -41,6 +40,10 @@ public class MainService extends Service implements HiMatchingThread.HiMatchingC
         return START_STICKY;
     }
 
+    /**
+     * Sends broadcast message for the matched sound
+     * <p>everis.com.hearit.matchedSound</p>
+     */
     public void sendMatchedBroadcast(String soundNameMatched) {
         Intent i = new Intent("everis.com.hearit.matchedSound");
         i.putExtra("soundName", soundNameMatched);

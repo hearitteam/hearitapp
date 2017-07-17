@@ -23,8 +23,8 @@ public class HiSoundParams {
     public static int PERCENTAGE_MATCHED = 77;
     public static int MISSING_BEFORE_RESET = 2;
     public static float FREQ_RES = RECORDER_SAMPLERATE / CHUNK_SIZE;
-    public static int MIN_K = (int)(LOWER_LIMIT / FREQ_RES);
-    public static int MAX_K = (int)(UPPER_LIMIT / FREQ_RES);
+    public static int MIN_K = (int) (LOWER_LIMIT / FREQ_RES);
+    public static int MAX_K = (int) (UPPER_LIMIT / FREQ_RES);
     //TODO: consider linear vs log
     public static int[] RANGE = HiAlgorithmUtils.generateLogSpace(HiSoundParams.LOWER_LIMIT, HiSoundParams.UPPER_LIMIT, HiSoundParams.BINS);
 }

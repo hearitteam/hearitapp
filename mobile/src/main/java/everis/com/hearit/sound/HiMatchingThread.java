@@ -13,21 +13,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import everis.com.hearit.model.Sound;
+import everis.com.hearit.model.HiSound;
 import everis.com.hearit.utils.HiUtils;
 
 public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
 
     private ArrayList<Short> audio;
     //TODO change MAP type (Anna)
-    //private Map<Sound, Pair<Integer, Integer>> matchedMap;
+    //private Map<HiSound, Pair<Integer, Integer>> matchedMap;
     private Map<String, Integer> matchedMap;
     private String matchedSound;
     private HiMatchingCallback callback;
-    private List<Sound> allSound;
+    private List<HiSound> allSound;
     private boolean isRecording = false;
 
-    public HiMatchingThread(HiMatchingCallback callback, List<Sound> allSound) {
+    public HiMatchingThread(HiMatchingCallback callback, List<HiSound> allSound) {
         this.callback = callback;
         this.audio = new ArrayList<>();
         this.matchedMap = new HashMap<>();

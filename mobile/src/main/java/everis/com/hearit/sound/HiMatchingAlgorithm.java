@@ -3,7 +3,7 @@ package everis.com.hearit.sound;
 import java.util.ArrayList;
 import java.util.List;
 
-import everis.com.hearit.model.Sound;
+import everis.com.hearit.model.HiSound;
 
 /**
  * Created by mauriziomento on 16/05/17.
@@ -11,7 +11,7 @@ import everis.com.hearit.model.Sound;
 
 public class HiMatchingAlgorithm {
 
-    public List<String> matchChunk(ArrayList<Short> audio, List<Sound> allSound) {
+    public List<String> matchChunk(ArrayList<Short> audio, List<HiSound> allSound) {
 
         String hash = CalculateHash(audio);
 
@@ -60,7 +60,7 @@ public class HiMatchingAlgorithm {
         return HiAlgorithmUtils.getHash(HiSoundParams.RANGE, recordPoints);
     }
 
-    private List<String> PartialMatched(List<Sound> allSound, String hash) {
+    private List<String> PartialMatched(List<HiSound> allSound, String hash) {
 
         List<String> soundMatched = new ArrayList<>();
 
@@ -75,7 +75,7 @@ public class HiMatchingAlgorithm {
 
             int countEquals = 0;
             int[] soundArrayHash = allSound.get(i).getArrayHash();
-            Sound sound = allSound.get(i);
+            HiSound sound = allSound.get(i);
 
             for (int j = 0; j < soundArrayHash.length; j++) {
                 if (arrayHash[j] == soundArrayHash[j]) {

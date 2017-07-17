@@ -1,6 +1,5 @@
 package everis.com.hearit;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
@@ -9,7 +8,7 @@ import android.widget.TextView;
  * Created by mauriziomento on 22/05/17.
  */
 
-public class MatchedActivity extends AppCompatActivity {
+public class HiMatchedActivity extends AppCompatActivity {
 
     private TextView soundNameView;
 
@@ -19,17 +18,10 @@ public class MatchedActivity extends AppCompatActivity {
         setContentView(R.layout.activity_matched);
 
         //TODO wake-up screen
-
         soundNameView = (TextView) findViewById(R.id.matched_sound_name);
+        soundNameView.setText(getIntent().getStringExtra("soundName"));
 
-        String soundName = getIntent().getStringExtra("soundName");
-
-        soundNameView.setText(soundName);
-
-        MainActivity.restartListenerService = true;
-
-        // Restart Service
-        //startService(new Intent(getBaseContext(), MainService.class));
+        HiMainActivity.restartListenerService = true;
     }
 
     @Override protected void onDestroy() {

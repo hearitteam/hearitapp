@@ -1,7 +1,5 @@
 package everis.com.hearit.sound;
 
-import everis.com.hearit.utils.HiUtils;
-
 /**
  * Created by mauriziomento on 16/05/17.
  */
@@ -23,7 +21,7 @@ public class HiAlgorithmUtils {
         RANGE[logBins] = HiSoundParams.UPPER_LIMIT;
 
         //for (int r : RANGE) {
-            //HiUtils.log("HiAlgorithm", "Bins: " + r);
+        //HiUtils.log("HiAlgorithm", "Bins: " + r);
         //}
 
         return RANGE;

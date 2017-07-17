@@ -19,7 +19,7 @@ import java.io.File;
 
 import everis.com.hearit.utils.HiUtils;
 
-public class MainActivity extends AppCompatActivity {
+public class HiMainActivity extends AppCompatActivity {
 
     public static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     public static final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 2;
@@ -27,15 +27,22 @@ public class MainActivity extends AppCompatActivity {
 
     private Button show_list;
     private ImageView listen_sound;
-    private MainActivity act;
+    private HiMainActivity act;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Start cascading permission requests (first WriteStorage, then RecordAudio)
+        // Each request will call onRequestPermissionsResult callback
         requestPermissionWriteStorage();
     }
 
+    /**
+     * Checks/Requests WriteStorage permission.
+     * <p>Will call onRequestPermissionsResult callback once done.</p>
+     */
     private void requestPermissionWriteStorage() {
         if (ContextCompat.checkSelfPermission(this, // request permission when it is not granted.
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -49,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Checks/Requests RecordAudio permission.
+     * <p>Will call onRequestPermissionsResult callback once done.</p>
+     */
     private void requestPermissionRecordAudio() {
         if (ContextCompat.checkSelfPermission(this, // request permission when it is not granted.
                 Manifest.permission.RECORD_AUDIO)
@@ -58,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.RECORD_AUDIO},
                     MY_PERMISSIONS_REQUEST_RECORD_AUDIO);
         } else {
-            mkdirSoundsFolder();
+            mkdirSoundsFolderAndStartApp();
         }
     }
 
@@ -83,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     Toast.makeText(this, "Permission record sound granted...making folder", Toast.LENGTH_LONG).show();
-                    mkdirSoundsFolder();
+                    mkdirSoundsFolderAndStartApp();
                 } else {
                     Toast.makeText(this, "Permission record sound not granted", Toast.LENGTH_LONG).show();
                 }
@@ -92,8 +103,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void mkdirSoundsFolder() {
-
+    /**
+     * Creates a dedicated folder in DCIM folder. Then it starts the app.
+     */
+    private void mkdirSoundsFolderAndStartApp() {
         File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), HiUtils.AUDIO_RECORDER_FOLDER);
         boolean existing = folder.isDirectory();
         boolean created = folder.mkdirs();
@@ -111,19 +124,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if(isListenerServiceRunning()) {
-            if(listen_sound.getAnimation() == null) {
+        if (isListenerServiceRunning()) {
+            if (listen_sound.getAnimation() == null) {
                 listen_sound.startAnimation(AnimationUtils.loadAnimation(act, R.anim.rotate));
             }
-        } else if(restartListenerService) {
+        } else if (restartListenerService) {
             setService();
             restartListenerService = false;
-        }
-        else if(listen_sound != null && listen_sound.getAnimation() != null){
+        } else if (listen_sound != null && listen_sound.getAnimation() != null) {
             listen_sound.clearAnimation();
         }
     }
 
+    /**
+     * Starts the app. All the needed permission are given.
+     */
     private void startApp() {
         act = this;
 
@@ -131,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
         show_list.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getBaseContext(), SoundListActivity.class);
+                Intent intent = new Intent(getBaseContext(), HiSoundListActivity.class);
                 startActivity(intent);
             }
         });
@@ -145,18 +160,24 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Toggle the MainService for background listening
+     */
     private void setService() {
-        if(!isListenerServiceRunning()) {
-            startService(new Intent(getBaseContext(), MainService.class));
+        if (!isListenerServiceRunning()) {
+            startService(new Intent(getBaseContext(), HiMainService.class));
             listen_sound.startAnimation(AnimationUtils.loadAnimation(act, R.anim.rotate));
         } else {
-            stopService(new Intent(getBaseContext(), MainService.class));
+            stopService(new Intent(getBaseContext(), HiMainService.class));
             listen_sound.clearAnimation();
         }
     }
 
+    /**
+     * Checks MainService status
+     */
     private boolean isListenerServiceRunning() {
-        String listenerService = MainService.class.toString().replace("class ", "");
+        String listenerService = HiMainService.class.toString().replace("class ", "");
 
         ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {

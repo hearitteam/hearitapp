@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import everis.com.hearit.model.SoundView;
+import everis.com.hearit.model.HiSoundView;
 import everis.com.hearit.sound.HiSoundParams;
 import everis.com.hearit.utils.HiDBUtils;
 import everis.com.hearit.utils.HiUtils;
@@ -31,13 +31,13 @@ import everis.com.hearit.utils.HiUtils;
 /**
  * Created by mauriziomento on 21/02/16.
  */
-public class SoundAdapter extends ArrayAdapter<SoundView> {
+public class HiSoundAdapter extends ArrayAdapter<HiSoundView> {
 
     private Context ctx;
-    private ArrayList<SoundView> list;
+    private ArrayList<HiSoundView> list;
     private HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
 
-    public SoundAdapter(Context context, List<SoundView> objects) {
+    public HiSoundAdapter(Context context, List<HiSoundView> objects) {
         super(context, R.layout.list_item, R.id.sound_name, objects);
 
         this.ctx = context;
@@ -100,7 +100,7 @@ public class SoundAdapter extends ArrayAdapter<SoundView> {
         return true;
     }
 
-   /* public void UpdateItems(ArrayList<SoundView> list) {
+   /* public void UpdateItems(ArrayList<HiSoundView> list) {
         this.list.clear();
         this.list.addAll(list);
 
@@ -117,7 +117,7 @@ public class SoundAdapter extends ArrayAdapter<SoundView> {
             public void onClick(DialogInterface dialog, int which) {
                 HiDBUtils.deleteSound(soundName);
                 HiUtils.deleteAudioFile(soundName);
-                ((SoundListActivity) ctx).RefreshAdapter();
+                ((HiSoundListActivity) ctx).RefreshAdapter();
                 dialog.dismiss();
             }
         });
@@ -138,7 +138,7 @@ public class SoundAdapter extends ArrayAdapter<SoundView> {
         private int position;
         private AudioTrack audioTrack;
 
-        public PlayRecording(View rowView, int position){
+        public PlayRecording(View rowView, int position) {
             this.rowView = rowView;
             this.position = position;
         }
@@ -179,7 +179,7 @@ public class SoundAdapter extends ArrayAdapter<SoundView> {
                     public void onMarkerReached(AudioTrack track) {
                         try {
                             audioTrack.stop();
-                        } catch (Exception ex){
+                        } catch (Exception ex) {
                             ex.printStackTrace();
                         }
                         setPlayButton();
@@ -202,7 +202,7 @@ public class SoundAdapter extends ArrayAdapter<SoundView> {
             setStopButton();
         }
 
-        private void setStopButton(){
+        private void setStopButton() {
             ImageView sound_icon = (ImageView) rowView.findViewById(R.id.sound_icon);
             sound_icon.setImageDrawable(ctx.getDrawable(R.drawable.stop_circle_outline));
 
@@ -211,7 +211,7 @@ public class SoundAdapter extends ArrayAdapter<SoundView> {
                 public void onClick(View v) {
                     try {
                         audioTrack.stop();
-                    } catch (Exception ex){
+                    } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                     setPlayButton();
@@ -219,7 +219,7 @@ public class SoundAdapter extends ArrayAdapter<SoundView> {
             });
         }
 
-        private void setPlayButton(){
+        private void setPlayButton() {
             ImageView sound_icon = (ImageView) rowView.findViewById(R.id.sound_icon);
             sound_icon.setImageDrawable(ctx.getDrawable(R.drawable.play_circle_outline));
 

@@ -17,7 +17,7 @@ import everis.com.hearit.utils.HiUtils;
 /**
  * Created by mauriziomento on 22/02/16.
  */
-public class SoundListActivity extends AppCompatActivity {
+public class HiSoundListActivity extends AppCompatActivity {
 
     private ListView listview;
 
@@ -32,42 +32,20 @@ public class SoundListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getBaseContext(), RecordSoundActivity.class);
+                Intent intent = new Intent(getBaseContext(), HiRecordSoundActivity.class);
                 startActivity(intent);
             }
         });
 
         listview = (ListView) findViewById(R.id.listview);
-
-		/*
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-			@Override
-			public void onItemClick (AdapterView<?> parent, final View view,
-			                         int position, long id) {
-				final Sound item = (Sound) parent.getItemAtPosition(position);
-				view.animate().setDuration(2000).alpha(0)
-						.withEndAction(new Runnable() {
-							@Override
-							public void run () {
-								//soundList.remove(item);
-								soundAdapter.notifyDataSetChanged();
-								view.setAlpha(1);
-							}
-						});
-			}
-
-		});
-		*/
-
-        listview.setAdapter(new SoundAdapter(this, HiDBUtils.getSoundViewListFromDB()));
+        listview.setAdapter(new HiSoundAdapter(this, HiDBUtils.getSoundViewListFromDB()));
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        listview.setAdapter(new SoundAdapter(this, HiDBUtils.getSoundViewListFromDB()));
+        listview.setAdapter(new HiSoundAdapter(this, HiDBUtils.getSoundViewListFromDB()));
     }
 
     @Override
@@ -99,6 +77,6 @@ public class SoundListActivity extends AppCompatActivity {
     }
 
     public void RefreshAdapter() {
-        listview.setAdapter(new SoundAdapter(this, HiDBUtils.getSoundViewListFromDB()));
+        listview.setAdapter(new HiSoundAdapter(this, HiDBUtils.getSoundViewListFromDB()));
     }
 }

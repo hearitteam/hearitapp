@@ -6,26 +6,26 @@ import com.orm.dsl.Unique;
 /**
  * Created by mauriziomento on 16/05/17.
  */
-public class SoundView extends SugarRecord {
+public class HiSoundView extends SugarRecord {
 
     @Unique
     private String name;
     private int importance;
 
-    public SoundView() {
+    public HiSoundView() {
     }
 
-    public SoundView(String name) {
+    public HiSoundView(String name) {
         this.name = name;
         this.importance = 0;
     }
 
-    public SoundView(String name, int importance) {
+    public HiSoundView(String name, int importance) {
         this.name = name;
         this.importance = importance;
     }
 
-    public SoundView(String hash, String name, int importance) {
+    public HiSoundView(String hash, String name, int importance) {
         this.name = name;
         this.importance = importance;
     }
