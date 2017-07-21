@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.widget.Toast;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import everis.com.hearit.model.Sound;
 import everis.com.hearit.sound.HiMatchingThread;
@@ -29,9 +31,22 @@ public class MainService extends Service implements HiMatchingThread.HiMatchingC
 
         List<Sound> allSound = HiDBUtils.getSoundListFromDB();
 
-        /*for (Sound s : allSound) {
-            HiUtils.log("HiMatchingAlgorithm", "Existing: " + s.getHash() + " -" + s.getName());
-        }*/
+        Map<String, Integer> soundLengthMap = new HashMap<>();
+        for (Sound s : allSound) {
+            Integer count = soundLengthMap.get(s.getName());
+            if (count == null) {
+                count = 1;
+            } else {
+                count++;
+            }
+            soundLengthMap.put(s.getName(), count);
+        }
+
+        for (int i = 0; i < allSound.size(); i++) {
+            Sound currentSound = allSound.get(i);
+            currentSound.setLength(soundLengthMap.get(currentSound.getName()));
+            allSound.set(i, currentSound);
+        }
 
         Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
 

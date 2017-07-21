@@ -15,6 +15,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import everis.com.hearit.model.Sound;
 import everis.com.hearit.sound.HiAlgorithm;
 import everis.com.hearit.sound.HiRecorderThread;
 import everis.com.hearit.utils.HiDBUtils;
@@ -137,9 +138,17 @@ public class RecordSoundActivity extends AppCompatActivity implements HiRecorder
     @Override public void onFinishRecording(ArrayList<Short> audio) {
         HiAlgorithm algorithm = new HiAlgorithm();
         List<String> soundHash = algorithm.transformSound(fileName, audio);
+        int i = 1;
 
         for(String hash: soundHash){
-            HiDBUtils.saveHashAndSound(hash, fileName, 0);
+            List<Sound> sounds = Sound.find(Sound.class, "hash = ? and name = ?", hash, fileName);
+
+            if (sounds.isEmpty()) {
+                Sound sound = new Sound(hash, fileName, i);
+                sound.save();
+                i++;
+            }
+
         }
     }
 }

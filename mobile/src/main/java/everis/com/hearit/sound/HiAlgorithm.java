@@ -63,7 +63,7 @@ public class HiAlgorithm {
 
                 double power = mag * mag;
                 //Save the highest power and corresponding frequency:
-                if (power > highScores[bin]) {
+                if (power > highScores[bin] && power > HiSoundParams.MIN_POWER) {
                     //HiUtils.log("Saved highscore", "mag: " + mag + " freq: " + freq);
                     highScores[bin] = power;
                     recordPoints[bin] = (int) freq;

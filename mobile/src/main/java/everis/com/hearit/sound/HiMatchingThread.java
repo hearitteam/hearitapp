@@ -22,7 +22,7 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
     //TODO change MAP type (Anna)
     //private Map<Sound, Pair<Integer, Integer>> matchedMap;
     private Map<String, Integer> matchedMap;
-    private String matchedSound;
+    private Sound matchedSound;
     private HiMatchingCallback callback;
     private List<Sound> allSound;
     private boolean isRecording = false;
@@ -43,7 +43,7 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
         double amplitude;
         int bufferReadResult;
         int mismatched = 0;
-        List<String> matchedSounds;
+        List<Sound> matchedSounds;
         HiMatchingAlgorithm hiMatchingAlgorithm = new HiMatchingAlgorithm();
 
         isRecording = true;
@@ -112,9 +112,9 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
 
                         Integer maxMatched = 0;
 
-                        for (String s : matchedSounds) {
+                        for (Sound s : matchedSounds) {
 
-                            Integer count = matchedMap.get(s);
+                            Integer count = matchedMap.get(s.getName());
 
                             if (count == null) {
                                 count = 1;
@@ -122,9 +122,12 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
                                 count++;
                             }
 
-                            matchedMap.put(s, count);
+                            matchedMap.put(s.getName(), count);
 
-                            if(count >= HiSoundParams.MATCHED_HITS_THRESHOLD && count > maxMatched){
+                            double soundLength = (double)s.getLength();
+                            int matchedNeeded = (int)Math.ceil(soundLength/2);
+
+                            if(count >= matchedNeeded && count > maxMatched){
                                 maxMatched = count;
                                 matchedSound = s;
                             }
@@ -150,7 +153,7 @@ public class HiMatchingThread extends AsyncTask<Void, Void, Void> {
             audioRecord.release();
 
             if (matchedSound != null) {
-                callback.onSoundMatched(matchedSound);
+                callback.onSoundMatched(matchedSound.getName());
             }
 
         } catch (Exception ex) {

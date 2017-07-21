@@ -11,7 +11,7 @@ import everis.com.hearit.model.Sound;
 
 public class HiMatchingAlgorithm {
 
-    public List<String> matchChunk(ArrayList<Short> audio, List<Sound> allSound) {
+    public List<Sound> matchChunk(ArrayList<Short> audio, List<Sound> allSound) {
 
         String hash = CalculateHash(audio);
 
@@ -60,9 +60,9 @@ public class HiMatchingAlgorithm {
         return HiAlgorithmUtils.getHash(HiSoundParams.RANGE, recordPoints);
     }
 
-    private List<String> PartialMatched(List<Sound> allSound, String hash) {
+    private List<Sound> PartialMatched(List<Sound> allSound, String hash) {
 
-        List<String> soundMatched = new ArrayList<>();
+        List<Sound> soundMatched = new ArrayList<>();
 
         String[] hashSplit = hash.split(" ");
 
@@ -87,8 +87,8 @@ public class HiMatchingAlgorithm {
 
             if (percentage >= HiSoundParams.PERCENTAGE_MATCHED) {
                 String soundName = sound.getName();
-                if (!soundMatched.contains(soundName)) {
-                    soundMatched.add(soundName);
+                if (!soundMatched.contains(sound)) {
+                    soundMatched.add(sound);
                 }
                 // HiUtils.log("HiMatchingAlgorithm", "matched: " + hash + "   with: " + soundName);
             }

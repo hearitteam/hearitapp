@@ -1,5 +1,7 @@
 package everis.com.hearit.utils;
 
+import com.orm.util.NamingHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +25,7 @@ public class HiDBUtils {
     }
 
     public static ArrayList<Sound> getSoundListFromDB() {
+        //return new ArrayList<>(Sound.findWithQuery(Sound.class, "SELECT hash, name, sequence, count(name) as LENGTH FROM " + NamingHelper.toSQLName(Sound.class)));
         return new ArrayList<>(Sound.listAll(Sound.class));
     }
 

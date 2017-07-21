@@ -9,26 +9,19 @@ public class Sound extends SugarRecord {
 
     private String hash;
     private String name;
-
+    private int sequence;
+    private int length = 0;
     private int importance;
 
     public Sound() {
     }
 
-    public Sound(String name) {
+    public Sound(String hash, String name, int sequence) {
         this.name = name;
-        this.importance = 0;
-    }
-
-    public Sound(String name, int importance) {
-        this.name = name;
-        this.importance = importance;
-    }
-
-    public Sound(String hash, String name, int importance) {
         this.hash = hash;
-        this.name = name;
-        this.importance = importance;
+        this.sequence = sequence;
+        this.importance = 0;
+        this.length = 0;
     }
 
     public String getHash() {
@@ -58,6 +51,21 @@ public class Sound extends SugarRecord {
         this.name = name;
     }
 
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public int getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(int sequence) {
+        this.sequence = sequence;
+    }
 
     public int getImportance() {
         return importance;
